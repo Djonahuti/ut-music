@@ -52,7 +52,7 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
     let coverUrl = ""
     if (coverFile) {
       const { data, error } = await supabase.storage
-        .from("covers")
+        .from("media")
         .upload(`covers/${Date.now()}-${coverFile.name}`, coverFile)
       if (error) {
         alert("Cover upload failed")
