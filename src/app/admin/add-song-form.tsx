@@ -14,8 +14,14 @@ type FormValues = {
 }
 
 export function AddSongForm({ onAdded }: { onAdded: () => void }) {
-  const { control, reset } = useForm<FormValues>()  
-  const [title, setTitle] = useState("")
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+    defaultValues: {
+      title: "",
+      artist_id: "",
+      album_id: "",
+    },
+    mode: "onSubmit",
+  })  
   const [artists, setArtists] = useState<{ id: string; name: string }[]>([])
   const [albums, setAlbums] = useState<{ id: string; name: string }[]>([])
   const [audioFile, setAudioFile] = useState<File | null>(null)
@@ -32,7 +38,7 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
     })
   }, [])
 
-  async function handleSubmit(values: FormValues) {
+  async function onSubmit(values: FormValues) {
     setLoading(true)
 
     // 1. Upload audio file to local server
@@ -46,6 +52,11 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
       })
       const data = await res.json()
       audioFileName = data.fileName // e.g. "mysong.mp3"
+      if (!audioFileName) {
+        alert("Audio upload failed")
+        setLoading(false)
+        return
+      }
     }
 
     // 2. Upload cover to Supabase Storage
@@ -73,7 +84,6 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
       // You may want to resolve artist_id and album_id here if needed
     })
 
-    setTitle("")
     setArtists([])
     setAlbums([])
     setAudioFile(null)
@@ -86,14 +96,23 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
   return (
     <form
       className="space-y-4"
-      onSubmit={control.handleSubmit(handleSubmit)}
+      onSubmit={handleSubmit(onSubmit)}
     >
       <h2 className="text-lg font-medium">Add Song</h2>
-      <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+      <Controller
+        name="title"
+        control={control}
+        rules={{ required: "Title is required" }}
+        render={({ field }) => (
+          <Input placeholder="Title" {...field} />
+        )}
+      />
+      {errors.title && <div className="text-red-500">{errors.title.message}</div>}
+
       <Controller
         name="artist_id"
         control={control}
-        defaultValue=""
+        rules={{ required: "Artist is required" }}
         render={({ field }) => (
           <Select
             value={field.value}
@@ -115,10 +134,12 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
           </Select>
         )}
       />
+      {errors.artist_id && <div className="text-red-500">{errors.artist_id.message}</div>}
+
       <Controller
         name="album_id"
         control={control}
-        defaultValue=""
+        rules={{ required: "Album is required" }}
         render={({ field }) => (
           <Select
             value={field.value}
@@ -140,6 +161,8 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
           </Select>
         )}
       />
+      {errors.album_id && <div className="text-red-500">{errors.album_id.message}</div>}
+
       <Input type="file" accept="audio/*" onChange={(e: ChangeEvent<HTMLInputElement>) => setAudioFile(e.target.files?.[0] || null)} />
       <Input type="file" accept="image/*" onChange={(e: ChangeEvent<HTMLInputElement>) => setCoverFile(e.target.files?.[0] || null)} />
       <Button type="submit" disabled={loading}>
