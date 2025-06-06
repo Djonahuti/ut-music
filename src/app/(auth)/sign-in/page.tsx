@@ -3,7 +3,7 @@ import { AuthProvider } from '@/lib/AuthContext'
 
 const SignIn = () => {
   return (
-    <section className="flex-center size-full max-sm:px-6">
+    <section className="w-full max-w-sm md:max-w-3xl">
     <AuthProvider>
       <AuthForm type="sign-in" />
     </AuthProvider>        
