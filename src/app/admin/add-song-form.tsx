@@ -70,7 +70,7 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
         setLoading(false)
         return
       }
-      const { data: publicData } = supabase.storage.from("covers").getPublicUrl(data.path)
+      const { data: publicData } = supabase.storage.from("media").getPublicUrl(data.path)
       coverUrl = publicData.publicUrl
     }
 
