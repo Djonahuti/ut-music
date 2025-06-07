@@ -4,7 +4,7 @@ import Image from "next/image";
 export default async function HomePage() {
   const { data: songs, error } = await supabase
     .from("songs")
-    .select("id, title, artist, cover_url")
+    .select(`*, artists(name), albums(name)`)
     .order("created_at", { ascending: false })
     .limit(12);
 
@@ -27,7 +27,7 @@ export default async function HomePage() {
             />
             <div className="p-2">
               <p className="font-medium">{song.title}</p>
-              <p className="text-sm text-muted-foreground">{song.artist}</p>
+              <p className="text-sm text-muted-foreground">{song.artists.name}</p>
             </div>
           </div>
         ))}
