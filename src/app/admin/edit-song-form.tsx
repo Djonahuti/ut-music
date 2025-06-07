@@ -9,24 +9,32 @@ interface EditSongFormProps {
   song: {
     id: string
     title: string
-    artist_name: string
-    album_name: string
-  };
+    artist_id: string
+    album_id: string
+    cover_url?: string
+    duration?: number
+    artists:{
+      name: string
+    }
+    albums:{
+      name: string
+    }
+    };
   onUpdated: () => void;
 }
 
 export function EditSongForm({ song, onUpdated }: EditSongFormProps) {
   const [title, setTitle] = useState(song.title)
-  const [artistName, setArtistName] = useState(song.artist_name)
-  const [albumName, setAlbumName] = useState(song.album_name)
+  const [artistName, setArtistName] = useState(song.artist_id ? song.artists.name : "")
+  const [albumName, setAlbumName] = useState(song.album_id ? song.albums.name : "")
   const [loading, setLoading] = useState(false)
 
   async function handleUpdate() {
     setLoading(true)
     await supabase.from("songs").update({
       title,
-      artist_name: artistName,
-      album_name: albumName,
+      artist_id: artistName,
+      album_id: albumName,
     }).eq("id", song.id)
     setLoading(false)
     onUpdated()

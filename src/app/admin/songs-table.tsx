@@ -12,8 +12,16 @@ import { EditSongForm } from "./edit-song-form"
 type Song = {
   id: string
   title: string
-  artist_name: string
-  album_name: string
+  artist_id: string
+  album_id: string
+  cover_url?: string
+  duration?: number
+  artists:{
+    name: string
+  }
+  albums:{
+    name: string
+  }
   // Add other fields as needed
 }
 
@@ -26,7 +34,10 @@ export function SongTable() {
   }, [])
 
   async function fetchSongs() {
-    const { data } = await supabase.from("songs").select("*")
+    const { data } = await supabase
+     .from("songs")
+     .select(`*, artists(name), albums(name)`)
+     .order("id", { ascending: true })
     setSongs(data || [])
   }
 
@@ -75,8 +86,8 @@ export function SongTable() {
           {filtered.map((song) => (
             <TableRow key={song.id}>
               <TableCell>{song.title}</TableCell>
-              <TableCell>{song.artist_name}</TableCell>
-              <TableCell>{song.album_name}</TableCell>
+              <TableCell>{song.artists.name}</TableCell>
+              <TableCell>{song.albums.name}</TableCell>
               <TableCell className="flex gap-2">
                 <Dialog>
                   <DialogTrigger asChild>
