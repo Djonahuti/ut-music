@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
 
 interface EditUserFormProps {
-  user: { id: string; full_name: string };
+  user: { id: string; fullName: string };
   onUpdated: () => void;
 }
 
 export function EditUserForm({ user, onUpdated }: EditUserFormProps) {
-  const [name, setName] = useState(user.full_name)
+  const [name, setName] = useState(user.fullName)
 
   async function updateUser() {
     await supabase.from("users").update({ full_name: name }).eq("id", user.id)

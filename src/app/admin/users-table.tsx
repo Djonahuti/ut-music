@@ -11,7 +11,7 @@ import { EditUserForm } from "./edit-user-form"
 type User = {
   id: string
   email: string
-  full_name: string
+  fullName: string
   banned: boolean
 }
 
@@ -38,7 +38,7 @@ export function UserTable() {
 
   const filtered = users.filter((u) =>
     u.email.toLowerCase().includes(search.toLowerCase()) ||
-    u.full_name.toLowerCase().includes(search.toLowerCase())
+    u.fullName.toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -65,7 +65,7 @@ export function UserTable() {
         <TableBody>
           {filtered.map((user) => (
             <TableRow key={user.id}>
-              <TableCell>{user.full_name}</TableCell>
+              <TableCell>{user.fullName}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
                 {user.banned ? (
