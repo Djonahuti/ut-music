@@ -1,5 +1,23 @@
 'use client'
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { supabase } from './supabase';
+
+type Song = {
+  id: string
+  title: string
+  artist_id: string
+  album_id: string
+  cover_url?: string
+  duration?: number
+  audio_url?: string
+  artists:{
+    name: string
+  }
+  albums:{
+    name: string
+  }
+  // Add other fields as needed
+}
 
 interface PlayerContextType {
   audioRef: React.RefObject<HTMLAudioElement | null>;
@@ -44,64 +62,62 @@ interface PlayerContextType {
 
 const PlayerContext = createContext<PlayerContextType | null>(null)
 
-const mockTracks = [
-  {
-    title: 'God is a Woman',
-    artist: 'Ariana Grande',
-    src: '/songs/ariana-grande-god-is-a-woman.mp3',
-    image: '/img/ariana-grande-god-is-a-woman.jpg'
-  },
-  {
-    title: 'Rollin',
-    artist: 'Calvin Harris',
-    src: '/songs/calvin-harris-rollin.mp3',
-    image: '/img/calvin-harris-rollin.jpg'
-  },
-  {
-    title: 'Where’d You Go',
-    artist: 'Fort Minor',
-    src: '/songs/fort-minor-where-d-you-go.mp3',
-    image: '/img/fort-minor-where-d-you-go.jpg'
-  },
-  {
-    title: 'I’ll Be There',
-    artist: 'Jess Glynne',
-    src: '/songs/jess-glynne-i-ll-be-there.mp3',
-    image: '/img/jess-glynne-i-ll-be-there.jpg'
-  },
-  {
-    title: 'LOVE. (feat. Zacari)',
-    artist: 'Kendrick Lamar',
-    src: '/songs/kendrick-lamar-love.mp3',
-    image: '/img/kendrick-lamar-love.jpg'
-  },
-  {
-    title: 'Hideaway',
-    artist: 'Kiesza',
-    src: '/songs/kiesza-hideaway.mp3',
-    image: '/img/kiesza-hideaway.jpg'
-  },
-  {
-    title: 'Elevate',
-    artist: 'St. Lucia',
-    src: '/songs/st-lucia-elevate.mp3',
-    image: '/img/st-lucia-elevate.jpg'
-  },
-  {
-    title: 'Gimme Your Love',
-    artist: 'DEAM',
-    src: '/songs/deam-gimme-your-love.mp3',
-    image: '/img/deam-gimme-your-love.jpg'
-  }
-]
 
 export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [queue, setQueue] = useState(mockTracks)
+  const [queue, setQueue] = useState<{
+    title: string;
+    artist: string;
+    image: string;
+    src: string;
+  }[]>([])
   const [isMini, setIsMini] = useState(false)
-  const currentTrack = queue[currentIndex]
+  const [tracks, setTracks] = useState<Song[]>([])
+  
+  useEffect(() => {
+    const fetchSongs = async () => {
+      const { data, error } = await supabase
+        .from('songs')
+        .select(`*, artists(name), albums(name)`)
+        .order('created_at', { ascending: false })
+      if (error) {
+        console.error('Error fetching songs:', error)
+        return
+      }
+      // Map to your track structure
+      const mapped = data.map((song: Song) => ({
+        id: song.id,
+        title: song.title,
+        artist_id: song.artist_id,
+        album_id: song.album_id,
+        cover_url: song.cover_url,
+        duration: song.duration,
+        artists: song.artists,
+        albums: song.albums,
+        src: song.audio_url ? `/audio/${song.audio_url}` : null,
+        image: song.cover_url ?? '/img/default-cover.jpg'
+      }))
+      setTracks(mapped)
+      setQueue(
+        mapped.map((song) => ({
+          title: song.title,
+          artist: song.artists?.name ?? 'Unknown',
+          image: song.image,
+          src: song.src ?? ''
+        }))
+      )
+    }
+    fetchSongs()
+  }, [])
+
+  const currentTrack = queue[currentIndex] || {
+    title: '',
+    artist: '',
+    image: '',
+    src: ''
+  }
 
   const togglePlay = useCallback(() => {
     if (!audioRef.current) return
@@ -163,7 +179,12 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
          isMini,
          setIsMini,
          setIsPlaying, 
-         tracks: mockTracks
+         tracks: tracks.map(song => ({
+           title: song.title,
+           artist: song.artists?.name ?? 'Unknown',
+           image: song.cover_url ?? '/img/default-cover.jpg',
+           src: song.audio_url ? `/audio/${song.audio_url}` : ''
+         }))
      }}>
       {children}
       <audio ref={audioRef} src={currentTrack.src} />

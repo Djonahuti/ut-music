@@ -15,7 +15,7 @@ export const Volume = () => {
     if (audioRef?.current) audioRef.current.volume = newVolume / 100
   }
 
-  const VolumeIcon = volume === 0 ? IconVolume : volume < 50 ? IconVolume2 : IconVolume3
+  const VolumeIcon = volume === 0 ? IconVolume3 : volume < 50 ? IconVolume2 : IconVolume
 
   return (
     <div className="flex items-center gap-2 w-full md:w-auto">
