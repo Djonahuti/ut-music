@@ -6,11 +6,20 @@ import Sidebar from "./Sidebar";
 import { Player } from "./Player";
 import MobileTabs from "./MobileTabs";
 
-
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 
 export default function ResponsiveLayout({ children }: { children: ReactNode }) {
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const [hydrated, setHydrated] = React.useState(false); 
+  
+  React.useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  if (!hydrated) {
+    // Render nothing or a loading skeleton until hydration
+    return null;
+  }  
   
   return (
     <>

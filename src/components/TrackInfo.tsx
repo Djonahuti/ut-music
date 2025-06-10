@@ -14,7 +14,11 @@ export const TrackInfo = () => {
 
   return (
     <div className="flex items-center gap-4 w-full md:w-auto">
+     {currentTrack.image ? (
       <Image src={currentTrack.image} alt="cover" width={56} height={56} className="rounded-md" />
+     ):(
+      <Image src="/globe.svg" alt="default cover" width={56} height={56} className="rounded-md" />
+     )}
       <div className="flex flex-col">
         <span className="text-sm font-medium">{currentTrack.title}</span>
         <span className="text-xs text-muted-foreground">{currentTrack.artist}</span>
