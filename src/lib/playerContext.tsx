@@ -187,7 +187,9 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
          }))
      }}>
       {children}
-      <audio ref={audioRef} src={currentTrack.src} />
+      {currentTrack.src ? (
+        <audio ref={audioRef} src={currentTrack.src} />
+      ) : null}
     </PlayerContext.Provider>
   )
 }

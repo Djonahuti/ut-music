@@ -9,6 +9,7 @@ import { Pencil, Trash } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { AddAlbumForm } from "./add-album-form";
 
 
 interface Album {
@@ -68,7 +69,21 @@ export function AlbumTable() {
 
   return (
     <div className="space-y-4">
+     <div className="flex justify-between items-center">
       <Input placeholder="Search albums..." value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>Add Album</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Song</DialogTitle>
+            </DialogHeader>
+            <DialogDescription>Fill Correctly</DialogDescription>
+            <AddAlbumForm onAdded={fetchAlbums} />
+          </DialogContent>
+        </Dialog>
+       </div>    
       <Table className="w-full text-left">
         <TableHeader>
           <TableRow>

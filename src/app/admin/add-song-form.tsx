@@ -11,6 +11,7 @@ type FormValues = {
   title: string
   artist_id: string
   album_id: string
+  genre_id: string
 }
 
 export function AddSongForm({ onAdded }: { onAdded: () => void }) {
@@ -19,22 +20,27 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
       title: "",
       artist_id: "",
       album_id: "",
+      genre_id: "",
     },
     mode: "onSubmit",
   })  
   const [artists, setArtists] = useState<{ id: string; name: string }[]>([])
   const [albums, setAlbums] = useState<{ id: string; name: string }[]>([])
+  const [genres, setGenres] = useState<{ id: string; name: string }[]>([])
   const [audioFile, setAudioFile] = useState<File | null>(null)
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    // Fetch artists and albums from Supabase
+    // Fetch artists, albums and genres from Supabase
     supabase.from("artists").select("id, name").then(({ data }) => {
       if (data) setArtists(data)
     })
     supabase.from("albums").select("id, name").then(({ data }) => {
       if (data) setAlbums(data)
+    })
+    supabase.from("genres").select("id, name").then(({ data }) => {
+      if (data) setGenres(data)
     })
   }, [])
 
@@ -79,6 +85,7 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
       title: values.title,
       artist_id: values.artist_id,
       album_id: values.album_id,
+      genre_id: values.genre_id,
       audio_url: audioFileName,
       cover_url: coverUrl,
       // You may want to resolve artist_id and album_id here if needed
@@ -86,6 +93,7 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
 
     setArtists([])
     setAlbums([])
+    setGenres([])
     setAudioFile(null)
     setCoverFile(null)
     reset()
@@ -162,6 +170,33 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
         )}
       />
       {errors.album_id && <div className="text-red-500">{errors.album_id.message}</div>}
+
+      <Controller
+        name="genre_id"
+        control={control}
+        rules={{ required: "Genre is required" }}
+        render={({ field }) => (
+          <Select
+            value={field.value}
+            onValueChange={field.onChange}
+            disabled={loading}
+          >
+           <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Choose Genre" />
+           </SelectTrigger> 
+            <SelectContent>
+              <SelectGroup>
+            {genres.map((genre) => (
+              <SelectItem key={genre.id} value={genre.id}>
+                {genre.name}
+              </SelectItem>
+            ))}                
+              </SelectGroup>  
+            </SelectContent>
+          </Select>
+        )}
+      />
+      {errors.genre_id && <div className="text-red-500">{errors.genre_id.message}</div>}      
 
       <Input type="file" accept="audio/*" onChange={(e: ChangeEvent<HTMLInputElement>) => setAudioFile(e.target.files?.[0] || null)} />
       <Input type="file" accept="image/*" onChange={(e: ChangeEvent<HTMLInputElement>) => setCoverFile(e.target.files?.[0] || null)} />
