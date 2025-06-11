@@ -16,6 +16,7 @@ const links = [
   { href: "/admin/songs", label: "Songs" },
   { href: "/admin/artists", label: "Artists" },
   { href: "/admin/albums", label: "Albums" },
+  { href: "/admin/genres", label: "Genres" },
 ];
 
 export function Sidebar() {

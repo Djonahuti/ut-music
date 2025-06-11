@@ -6,12 +6,14 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { supabase } from "@/lib/supabase"
 import { useState, ChangeEvent, useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
+import { Textarea } from "@/components/ui/textarea"
 
 type FormValues = {
   name: string
   artist_id: string
   genre_id: string
   release_year: string
+  info: string
 }
 
 export function AddAlbumForm({ onAdded }: { onAdded: () => void }) {
@@ -21,6 +23,7 @@ export function AddAlbumForm({ onAdded }: { onAdded: () => void }) {
       artist_id: "",
       genre_id: "",
       release_year: "",
+      info: "",
     },
     mode: "onSubmit",
   })  
@@ -63,6 +66,7 @@ export function AddAlbumForm({ onAdded }: { onAdded: () => void }) {
       artist_id: values.artist_id,
       genre_id: values.genre_id,
       release_year: values.release_year,
+      info: values.info,
       cover_url: coverUrl,
       // You may want to resolve artist_id and album_id here if needed
     })
@@ -117,6 +121,16 @@ export function AddAlbumForm({ onAdded }: { onAdded: () => void }) {
         )}
       />
       {errors.artist_id && <div className="text-red-500">{errors.artist_id.message}</div>}
+
+      <Controller
+        name="info"
+        control={control}
+        rules={{ required: "Info is required" }}
+        render={({ field }) => (
+          <Textarea placeholder="Info" {...field} />
+        )}
+      />
+      {errors.info && <div className="text-red-500">{errors.info.message}</div>}
 
       <Controller
         name="genre_id"
