@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOutIcon, UserCircle } from "lucide-react";
+import { ListOrdered, LogOutIcon, Search, UserCircle } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Input } from "./ui/input";
 import Link from "next/link";
@@ -9,9 +9,16 @@ import { useEffect, useState } from "react";
 import { User } from "@/types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { usePlayer } from "@/lib/playerContext";
+import { TrackInfo } from "./TrackInfo";
+import { PlayerControls } from "./Controls";
+//import { Timeline } from "./Timeline";
+import { Volume } from "./Volume";
+import { Button } from "./ui/button";
 
 export default function Topbar() {
   const [user, setUser] = useState<User | null>(null);
+  const player = usePlayer();
 
 useEffect(() => {
     // Fetch user data from Supabase
@@ -44,11 +51,33 @@ useEffect(() => {
 
 
   return (
-    <header className="w-full flex justify-between items-center px-4 py-2 border-b bg-background">
-      <div className="flex gap-4 items-center">
-        <Input placeholder="Search" className="w-72" />
-      </div>
+    <div className="w-full h-15 flex justify-between items-center p-2 border-b bg-background">
+      <>
+        {player && player.currentTrack && (
+        <>
+          <div className="flex items-center gap-2">
+              <PlayerControls />
+              <Volume />
+          </div>
+          <div className="flex items-center gap-2">
+            <TrackInfo />
+          </div>  
+        </>        
+        )}
+
+      </>
       <div className="flex gap-2 items-center">
+        <Button variant="ghost" size="icon">
+          <ListOrdered className="w-5 h-5" />
+        </Button>        
+        <div className="flex items-center border rounded-md px-2">
+          <Search className="w-4 h-4 text-muted-foreground mr-1" />
+          <Input
+            type="text"
+            placeholder="Search"
+            className="border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-8"
+          />
+        </div>
         {user && user.id ? (
           <DropdownMenu>
             <DropdownMenuTrigger>
@@ -116,6 +145,6 @@ useEffect(() => {
         )}
         <ThemeToggle />
       </div>
-    </header>
+    </div>
   );
 }

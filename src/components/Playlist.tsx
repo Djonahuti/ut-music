@@ -1,5 +1,3 @@
-
-// Playlist.tsx
 'use client'
 import { usePlayer } from '@/lib/playerContext'
 
@@ -11,7 +9,7 @@ type Track = {
   image: string
 }
 
-export const Playlist = () => {
+export function Playlist () {
   const player = usePlayer()
   if (!player) return null
   const { setCurrentTrack, audioRef, tracks } = player

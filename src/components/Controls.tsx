@@ -1,4 +1,4 @@
-import { IconPlayerPlay, IconPlayerPause, IconPlayerSkipForward, IconPlayerSkipBack, IconPlaylistAdd } from '@tabler/icons-react'
+import { IconPlayerPlay, IconPlayerPause, IconPlayerSkipForward, IconPlayerSkipBack } from '@tabler/icons-react'
 import { usePlayer } from '@/lib/playerContext'
 
 export const PlayerControls = () => {
@@ -17,8 +17,6 @@ export const PlayerControls = () => {
       <button onClick={playNext}>
         <IconPlayerSkipForward size={24} />
       </button>
-
-      <IconPlaylistAdd size={24} stroke={2} />
     </div>
   )
 }

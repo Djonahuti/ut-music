@@ -1,13 +1,19 @@
-import { IconAlbum, IconCalendarWeekFilled, IconMicrophone } from "@tabler/icons-react";
+"use client";
+import { cn } from "@/lib/utils";
+import { IconAlbum, IconCalendarWeekFilled, IconMicrophone, IconPlaylist } from "@tabler/icons-react";
 import { Guitar, Music2 } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-export default function Sidebar() {
+export function Sidebar() {
+  const pathname = usePathname();
   const libraryItems = [
-    { icon: <IconCalendarWeekFilled />, label: "Recently Added" },
-    { icon: <IconMicrophone />, label: "Artists" },
-    { icon: <IconAlbum />, label: "Albums" },
-    { icon: <Music2 />, label: "Songs" },
-    { icon: <Guitar />, label: "Genre" },
+    { icon: <IconCalendarWeekFilled />, label: "Recently Added", href: "/" },
+    { icon: <IconMicrophone />, label: "Artists", href: "/artists" },
+    { icon: <IconAlbum />, label: "Albums", href: "/albums" },
+    { icon: <Music2 />, label: "Songs", href: "/songs" },
+    { icon: <Guitar />, label: "Genre", href: "/genres" },
+    { icon: <IconPlaylist />, label: "Playlist", href: "/playlists" },
   ];
 
   const playlistItems = [
@@ -21,14 +27,21 @@ export default function Sidebar() {
   return (
     <aside className="w-64 p-4 border-r overflow-y-auto hidden md:block">
       <h2 className="font-semibold mb-4">Library</h2>
-      <ul className="space-y-2 mb-6">
-        {libraryItems.map(({ icon, label }) => (
-          <li key={label} className="flex items-center gap-2 cursor-pointer hover:underline">
+      <nav className="space-y-2 mb-6">
+        {libraryItems.map(({ icon, label, href }) => (
+          <Link
+           key={href} 
+           className={cn(
+             "flex items-center gap-2 cursor-pointer hover:underline",
+             pathname === href ? "text-blue-500 font-semibold" : "text-gray-700"
+           )} 
+           href={href}
+          >
             {icon}
             {label}
-          </li>
+          </Link>
         ))}
-      </ul>
+      </nav>
       <h2 className="font-semibold mb-2">Music Playlists</h2>
       <ul className="space-y-1">
         {playlistItems.map((name) => (

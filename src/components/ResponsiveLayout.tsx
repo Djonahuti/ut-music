@@ -2,11 +2,11 @@
 
 import { useMediaQuery } from "@/hooks/use-media-query";
 import Topbar from "./Topbar";
-import Sidebar from "./Sidebar";
-import { Player } from "./Player";
+//import { Player } from "./Player";
 import MobileTabs from "./MobileTabs";
 
 import React, { ReactNode } from "react";
+import { Sidebar } from "./Sidebar";
 
 export default function ResponsiveLayout({ children }: { children: ReactNode }) {
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -29,7 +29,6 @@ export default function ResponsiveLayout({ children }: { children: ReactNode }) 
        {!isMobile && <Sidebar />}
        <main className="flex-1 overflow-y-auto px-4 pb-24">{children}</main>
      </div>
-     <Player />
      {isMobile && <MobileTabs />}
      </div>
     </>

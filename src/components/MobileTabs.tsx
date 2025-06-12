@@ -1,5 +1,6 @@
 import { IconCompassFilled, IconHome, IconLibrary, IconSearch, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
+import { Player } from "./Player";
 
 export default function MobileTabs() {
   const tabs = [
@@ -11,13 +12,18 @@ export default function MobileTabs() {
   ];
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 bg-background border-t flex justify-around items-center h-14 md:hidden z-50">
-      {tabs.map((tab) => (
-        <Link key={tab.label} href={tab.href} className="flex flex-col items-center text-xs">
-          {tab.icon}
-          {tab.label}
-        </Link>
-      ))}
-    </nav>
+   <>
+   <div>
+    <Player />
+   </div>
+   <nav className="fixed bottom-0 inset-x-0 bg-background border-t flex justify-around items-center h-14 md:hidden z-50">
+     {tabs.map((tab) => (
+       <Link key={tab.label} href={tab.href} className="flex flex-col items-center text-xs">
+         {tab.icon}
+         {tab.label}
+       </Link>
+     ))}
+   </nav>
+   </>
   );
 }

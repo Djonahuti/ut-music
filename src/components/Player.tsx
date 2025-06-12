@@ -13,7 +13,7 @@ export const Player = () => {
   if (!player) return null
   const { isMini, setIsMini } = player
   return (
-    <div className="w-full fixed bottom-0 bg-background border-t p-4 flex flex-col md:flex-row items-center justify-between gap-4 z-50">
+    <div className="w-full fixed bottom-15 bg-background border-t p-4 flex flex-col md:flex-row items-center justify-between gap-4 z-50">
       <div className="flex justify-end mb-2">
         <Button variant="ghost" size="sm" onClick={() => setIsMini(!isMini)}>
           {isMini ? <IconChevronUp size={18} /> : <IconChevronDown size={18} />}

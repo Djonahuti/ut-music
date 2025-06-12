@@ -1,5 +1,3 @@
-
-// Timeline.tsx
 'use client'
 import { useEffect, useState } from 'react'
 import { usePlayer } from '@/lib/playerContext'
@@ -36,7 +34,7 @@ export const Timeline = () => {
       max="100"
       value={progress}
       onChange={handleChange}
-      className="w-full h-1 rounded-lg cursor-pointer"
+      className="w-40 h-[3px] rounded-lg cursor-pointer accent-gray-500"
     />
   )
 }
