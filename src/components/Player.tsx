@@ -1,13 +1,11 @@
 'use client'
 //import { useState } from 'react'
-import { PlayerControls } from './Controls'
-import { TrackInfo } from './TrackInfo'
-import { Volume } from './Volume'
 import { usePlayer } from '@/lib/playerContext'
 import { MiniControls } from './MiniControls'
 import { MiniInfo } from './MiniInfo'
 import { Button } from './ui/button'
 import { IconChevronDown } from '@tabler/icons-react'
+import NowPlaying from './shared/NowPlaying'
 
 export const Player = () => {
   const player = usePlayer()
@@ -26,12 +24,8 @@ export const Player = () => {
           <MiniControls />
         </div>
       ) : (
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <TrackInfo />
-          <div className="flex flex-col items-center w-full md:w-auto">
-            <PlayerControls />
-          </div>
-          <Volume />
+        <div>
+          <NowPlaying />
           <Button
             variant="ghost"
             size="sm"
