@@ -24,7 +24,7 @@ export const Player = () => {
           <MiniControls />
         </div>
       ) : (
-        <div>
+        <div className="fixed inset-0 w-full h-full z-50 bg-background md:static md:w-auto md:h-auto md:bg-transparent flex flex-col">
           <NowPlaying />
           <Button
             variant="ghost"
@@ -33,6 +33,7 @@ export const Player = () => {
               e.stopPropagation()
               setIsMini(true)
             }}
+            className="absolute top-2 right-2 md:static"            
           >
             <IconChevronDown size={18} />
           </Button>          
