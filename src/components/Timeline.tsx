@@ -1,11 +1,13 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePlayer } from '@/lib/playerContext'
+import { Progress } from './ui/progress'
 
 export const Timeline = () => {
   const player = usePlayer()
   const audioRef = player?.audioRef
   const [progress, setProgress] = useState(0)
+  const progressBarRef = useRef<HTMLDivElement>(null)  
 
   useEffect(() => {
     const audio = audioRef?.current
@@ -19,22 +21,26 @@ export const Timeline = () => {
     return () => audio.removeEventListener('timeupdate', updateProgress)
   }, [audioRef])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Allow seeking by clicking the progress bar
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const audio = audioRef?.current
-    if (!audio) return
-    const newTime = (Number(e.target.value) / 100) * audio.duration
-    audio.currentTime = newTime
-    setProgress(Number(e.target.value))
+    if (!audio || !progressBarRef.current) return
+
+    const rect = progressBarRef.current.getBoundingClientRect()
+    const clickX = e.clientX - rect.left
+    const width = rect.width
+    const percent = Math.min(Math.max(clickX / width, 0), 1)
+    audio.currentTime = percent * audio.duration
+    setProgress(percent * 100)
   }
 
   return (
-    <input
-      type="range"
-      min="0"
-      max="100"
-      value={progress}
-      onChange={handleChange}
-      className="w-40 h-[3px] rounded-lg cursor-pointer accent-gray-500"
-    />
+    <div
+      ref={progressBarRef}
+      onClick={handleSeek}
+      style={{ cursor: 'pointer', width: '160px' }}
+    >
+      <Progress value={progress} className="h-[3px] rounded-lg accent-gray-500" />
+    </div>
   )
 }
