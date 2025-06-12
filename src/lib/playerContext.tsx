@@ -1,5 +1,5 @@
 'use client'
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { supabase } from './supabase';
 
 type Song = {
@@ -35,6 +35,8 @@ interface PlayerContextType {
     image: string;
     src: string;
   }) => void;
+  duration: number;
+  currentTime: number;
   queue: {
     title: string;
     artist: string;
@@ -65,6 +67,8 @@ const PlayerContext = createContext<PlayerContextType | null>(null)
 
 export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [queue, setQueue] = useState<{
@@ -112,12 +116,14 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     fetchSongs()
   }, [])
 
-  const currentTrack = queue[currentIndex] || {
-    title: '',
-    artist: '',
-    image: '',
-    src: ''
-  }
+  const currentTrack = useMemo(() => (
+    queue[currentIndex] || {
+      title: '',
+      artist: '',
+      image: '',
+      src: ''
+    }
+  ), [queue, currentIndex])
 
   const togglePlay = useCallback(() => {
     if (!audioRef.current) return
@@ -151,8 +157,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!audioRef.current) return
     audioRef.current.load()
-    if (isPlaying) audioRef.current.play()
-  }, [currentIndex, isPlaying])
+  }, [currentIndex])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -164,6 +169,34 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isPlaying, currentIndex, playNext, playPrev, togglePlay])  
 
+  useEffect(() => {
+    if (currentTrack?.src) {
+      if (!audioRef.current) {
+        audioRef.current = new Audio();
+      }
+      audioRef.current.src = currentTrack.src;
+      audioRef.current.load();
+
+      const onLoadedMetadata = () => {
+        setDuration(audioRef.current?.duration || 0);
+        if (isPlaying) {
+          audioRef.current?.play();
+        }        
+      };
+      const onTimeUpdate = () => {
+        setCurrentTime(audioRef.current?.currentTime || 0);
+      };
+
+      audioRef.current.addEventListener('loadedmetadata', onLoadedMetadata);
+      audioRef.current.addEventListener('timeupdate', onTimeUpdate);
+
+      return () => {
+        audioRef.current?.removeEventListener('loadedmetadata', onLoadedMetadata);
+        audioRef.current?.removeEventListener('timeupdate', onTimeUpdate);
+      };
+    }
+  }, [currentTrack, isPlaying]);
+
   return (
     <PlayerContext.Provider
      value={{
@@ -172,6 +205,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
          togglePlay, 
          currentTrack, 
          setCurrentTrack,
+         duration,
+         currentTime,
          queue,
          setQueue,
          playNext,
