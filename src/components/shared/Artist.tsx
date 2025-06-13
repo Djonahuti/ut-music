@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Artist {
@@ -14,6 +15,7 @@ interface Artist {
 }
 
 export function Artist() {
+  const router = useRouter();  
   const [artists, setArtists] = useState<Artist[]>([])
   const [search, setSearch] = useState("")
 
@@ -21,6 +23,10 @@ export function Artist() {
     const { data } = await supabase.from("artists").select("*")
     setArtists(data || [])
   }
+
+  const handleArtistClick = (artistId: string) => {
+    router.push(`/artist_info/${artistId}`);
+  };
 
   useEffect(() => {
     fetchArtists()
@@ -45,7 +51,7 @@ export function Artist() {
         </TableHeader>
         <TableBody>
           {filtered.map((artist) => (
-            <TableRow key={artist.id} className="border-t">
+            <TableRow key={artist.id} onClick={() => handleArtistClick(artist.id)} className="border-t">
               <TableCell>
                 <Image
                  src={artist.image_url} 
