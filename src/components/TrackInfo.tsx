@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { Timeline } from './Timeline';
 import { Button } from './ui/button';
 import { Repeat, Shuffle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import MiniPlayer from './shared/MiniPlayer';
 
 function formatTime(seconds: number) {
   if (isNaN(seconds)) return '0:00';
@@ -25,7 +27,25 @@ export const TrackInfo = () => {
   return (
     <div className="flex items-center gap-3 max-w-lg w-full p-2">
      {currentTrack.image ? (
-      <Image src={currentTrack.image} alt="cover" width={40} height={40} className="rounded-sm" />
+      <Dialog>
+        <DialogTrigger asChild>
+          <Image
+            src={currentTrack.image}
+            alt="cover"
+            width={40}
+            height={40}
+            className="rounded-sm cursor-pointer"
+          />
+        </DialogTrigger>
+        <DialogContent
+         className="p-0 bg-transparent shadow-none border-none"
+        >
+          <DialogHeader>
+            <DialogTitle className='hidden'>-</DialogTitle>
+          </DialogHeader>          
+          <MiniPlayer />
+        </DialogContent>
+      </Dialog>
      ):(
       <Image src="/globe.svg" alt="default cover" width={40} height={40} className="rounded-sm" />
      )}

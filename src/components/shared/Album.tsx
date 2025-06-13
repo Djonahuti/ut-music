@@ -2,6 +2,7 @@
 
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Album {
@@ -16,6 +17,7 @@ interface Album {
 
 export function Album() {
   const [albums, setAlbums] = useState<Album[]>([]);
+  const router = useRouter();
 
   const fetchAlbums = async () => {
     const { data: albums, error } = await supabase
@@ -31,6 +33,10 @@ export function Album() {
     setAlbums(albums);
   };
 
+  const handleAlbumClick = (albumId: string) => {
+    router.push(`/album_detail/${albumId}`);
+  };
+
   useEffect(() => {
     fetchAlbums();
   }, []);
@@ -39,7 +45,7 @@ export function Album() {
     <div className="p-4">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {albums?.map((album) => (
-          <div key={album.id} className="rounded overflow-hidden shadow-md">
+          <div key={album.id} className="rounded overflow-hidden shadow-md cursor-pointer" onClick={() => handleAlbumClick(album.id)}>
             <Image
               src={album.cover_url}
               alt={album.name}
