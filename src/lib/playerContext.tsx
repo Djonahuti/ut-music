@@ -30,24 +30,30 @@ interface PlayerContextType {
     src: string;
   };
   setCurrentTrack: (track: {
+    id: string;
     title: string;
     artist: string;
     image: string;
     src: string;
+    audio_url: string;
   }) => void;
   duration: number;
   currentTime: number;
   queue: {
+    id: string;
     title: string;
     artist: string;
     image: string;
     src: string;
+    audio_url: string;
   }[];
   setQueue: React.Dispatch<React.SetStateAction<{
+    id: string;
     title: string;
     artist: string;
     image: string;
     src: string;
+    audio_url: string;
   }[]>>;
   playNext: () => void;
   playPrev: () => void;
@@ -55,10 +61,12 @@ interface PlayerContextType {
   setIsMini: React.Dispatch<React.SetStateAction<boolean>>;
   setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
   tracks: {
+    id: string;
     title: string;
     artist: string;
     image: string;
     src: string;
+    audio_url: string;
   }[];  
 }
 
@@ -72,10 +80,12 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [queue, setQueue] = useState<{
+    id: string;
     title: string;
     artist: string;
     image: string;
     src: string;
+    audio_url: string;
   }[]>([])
   const [isMini, setIsMini] = useState(false)
   const [tracks, setTracks] = useState<Song[]>([])
@@ -101,15 +111,18 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         artists: song.artists,
         albums: song.albums,
         src: song.audio_url ? `/audio/${song.audio_url}` : null,
-        image: song.cover_url ?? '/img/default-cover.jpg'
+        image: song.cover_url ?? '/img/default-cover.jpg',
+        audio_url: song.audio_url ?? ''
       }))
       setTracks(mapped)
       setQueue(
         mapped.map((song) => ({
+          id: song.id,
           title: song.title,
           artist: song.artists?.name ?? 'Unknown',
           image: song.image,
-          src: song.src ?? ''
+          src: song.src ?? '',
+          audio_url: song.audio_url ?? ''
         }))
       )
     }
@@ -117,13 +130,18 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   const currentTrack = useMemo(() => (
-    queue[currentIndex] || {
-      title: '',
-      artist: '',
-      image: '',
-      src: ''
+    {
+      ...(queue[currentIndex] || {
+        id: '',
+        title: '',
+        artist: '',
+        image: '',
+        src: '',
+        audio_url: ''
+      }),
+      id: tracks[currentIndex]?.id || ''
     }
-  ), [queue, currentIndex])
+  ), [queue, tracks, currentIndex])
 
   const togglePlay = useCallback(() => {
     if (!audioRef.current) return
@@ -149,7 +167,14 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [currentIndex])
 
-  const setCurrentTrack = (track: { title: string; artist: string; image: string; src: string }) => {
+  const setCurrentTrack = (track: {
+     id: string;
+     title: string; 
+     artist: string; 
+     image: string; 
+     src: string; 
+     audio_url: string;
+  }) => {
     const index = queue.findIndex(t => t.src === track.src)
     if (index !== -1) setCurrentIndex(index)
   }
@@ -177,11 +202,45 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
       audioRef.current.src = currentTrack.src;
       audioRef.current.load();
 
-      const onLoadedMetadata = () => {
+      const onLoadedMetadata = async () => {
         setDuration(audioRef.current?.duration || 0);
         if (isPlaying) {
-          audioRef.current?.play();
-        }        
+          await audioRef.current?.play();
+        }    
+      // 🔼 INCREMENT PLAYS IN SUPABASE
+      const matchingTrack = tracks.find(t => t.id === currentTrack.id);
+
+      if (!matchingTrack) {
+        console.warn("No matching track found for:", currentTrack.src);
+      }
+
+        if (matchingTrack?.id) {
+          try {
+            const { data, error } = await supabase
+              .from('songs')
+              .select('plays')
+              .eq('id', matchingTrack.id)
+              .single();
+
+            if (error) {
+              console.error("Error fetching plays:", error);
+              return;
+            }
+
+            const newPlayCount = (data?.plays || 0) + 1;
+
+            const { error: updateError } = await supabase
+              .from('songs')
+              .update({ plays: newPlayCount })
+              .eq('id', matchingTrack.id);
+
+            if (updateError) {
+              console.error("Error updating plays:", updateError);
+            }
+          } catch (err) {
+            console.error("Unexpected error updating plays:", err);
+          }
+        }            
       };
       const onTimeUpdate = () => {
         setCurrentTime(audioRef.current?.currentTime || 0);
@@ -195,7 +254,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         audioRef.current?.removeEventListener('timeupdate', onTimeUpdate);
       };
     }
-  }, [currentTrack, isPlaying]);
+  }, [currentTrack, isPlaying, tracks]);
 
   return (
     <PlayerContext.Provider
@@ -215,10 +274,12 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
          setIsMini,
          setIsPlaying, 
          tracks: tracks.map(song => ({
+           id: song.id,
            title: song.title,
            artist: song.artists?.name ?? 'Unknown',
            image: song.cover_url ?? '/img/default-cover.jpg',
-           src: song.audio_url ? `/audio/${song.audio_url}` : ''
+           src: song.audio_url ? `/audio/${song.audio_url}` : '',
+           audio_url: song.audio_url ?? ''
          }))
      }}>
       {children}

@@ -16,6 +16,7 @@ interface Song {
   id: string;
   title: string;
   cover_url?: string;
+  plays: number;
 }
 
 export default function ArtistInfo({ params }: { params: Promise<{ artistId: string }> }) {
@@ -41,7 +42,7 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
 
       const { data: songsData, error: songsError } = await supabase
         .from("songs")
-        .select("id, title, cover_url")
+        .select("id, title, cover_url, plays")
         .eq("artist_id", artistId)
         .limit(5); // Limit to popular 5 songs (or modify logic)
 
@@ -70,6 +71,8 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
                   src={artist.image_url} // Replace with your image path
                   alt={artist.name}
                   fill
+                  sizes="(max-width: 768px) 100vw, (min-width: 769px) 50vw"
+                  style={{ objectFit: 'cover' }}
                   className="object-cover opacity-80"
                 />
                 <div className="absolute bottom-4 left-4">
@@ -109,7 +112,7 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
                     </div>
                     <div>
                       <p className="font-medium text-gray-400">{song.title}</p>
-                      <p className="text-xs text-gray-400">1,000,000+ plays</p> {/* You can make this dynamic later */}
+                      <p className="text-xs text-gray-400">{song.plays}+ plays</p>
                     </div>
                   </div>
                   <span className="text-sm text-gray-400">
