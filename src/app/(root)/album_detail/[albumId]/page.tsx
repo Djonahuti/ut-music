@@ -14,6 +14,7 @@ interface Song {
   plays: number;
   audio_url?: string;
   cover_url?: string;
+  duration?: number;
 }
 
 interface Album {
@@ -28,6 +29,12 @@ interface Album {
   songs: Song[];
 }
 
+function formatDuration(seconds: number) {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
 export default function AlbumDetails({ params }: { params: Promise<{ albumId: string }> }) {
   const player = usePlayer();
   const [album, setAlbum] = useState<Album | null>(null);
@@ -39,7 +46,7 @@ export default function AlbumDetails({ params }: { params: Promise<{ albumId: st
     const fetchAlbum = async () => {
       const { data, error } = await supabase
         .from("albums")
-        .select(`*, artists(name), songs(id, title, cover_url, plays, audio_url)`)
+        .select(`*, artists(name), songs(id, title, cover_url, plays, audio_url, duration)`)
         .eq("id", albumId)
         .single();
       if (error) {
@@ -57,7 +64,7 @@ export default function AlbumDetails({ params }: { params: Promise<{ albumId: st
 
       const { data, error } = await supabase
         .from("songs")
-        .select("id, title, cover_url, plays, audio_url, album_id")
+        .select("id, title, cover_url, plays, audio_url, album_id, duration")
         .eq("album_id", albumId)
         .limit(5); // Limit to popular 5 songs (or modify logic)
 
@@ -160,7 +167,7 @@ export default function AlbumDetails({ params }: { params: Promise<{ albumId: st
                     </div>
                   </div>
                   <span className="text-sm text-gray-400">
-                    3:30
+                    {song.duration ? formatDuration(song.duration) : 'N/A'}
                   </span>
                 </div>
               ))}
