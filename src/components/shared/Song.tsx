@@ -19,6 +19,12 @@ interface Song {
   plays: number;
 }
 
+function formatDuration(seconds: number) {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
 export function Song() {
   const [songs, setSongs] = useState<Song[]>([])
   const [search, setSearch] = useState("")
@@ -49,10 +55,10 @@ export function Song() {
           <TableRow>
             <TableHead></TableHead>
             <TableHead>Name</TableHead>
-            <TableHead>Time</TableHead>
             <TableHead>Artist</TableHead>
             <TableHead>Album</TableHead>
             <TableHead>Genre</TableHead>
+            <TableHead>Time</TableHead>
             <TableHead>Plays</TableHead>
           </TableRow>
         </TableHeader>
@@ -69,10 +75,10 @@ export function Song() {
                 />
               </TableCell>
               <TableCell>{song.title}</TableCell>
-              <TableCell>{(song.duration / 60).toFixed(2)} min</TableCell>
               <TableCell className="max-w-[150px] truncate">{song.artists.name}</TableCell>
               <TableCell className="max-w-[150px] truncate">{song.albums.name}</TableCell>
               <TableCell>{song.genres.name}</TableCell>
+              <TableCell>{formatDuration(song.duration)}</TableCell>
               <TableCell>{song.plays}</TableCell>
             </TableRow>
           ))}
