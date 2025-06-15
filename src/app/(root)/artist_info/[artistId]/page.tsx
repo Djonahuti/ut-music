@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Play } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { usePlayer } from "@/lib/playerContext";
 
 interface Artist {
   id: string
@@ -17,9 +19,11 @@ interface Song {
   title: string;
   cover_url?: string;
   plays: number;
+  audio_url?: string;
 }
 
 export default function ArtistInfo({ params }: { params: Promise<{ artistId: string }> }) {
+  const player = usePlayer();
   const [artist, setArtist] = useState<Artist | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +46,7 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
 
       const { data: songsData, error: songsError } = await supabase
         .from("songs")
-        .select("id, title, cover_url, plays")
+        .select("id, title, cover_url, plays, audio_url")
         .eq("artist_id", artistId)
         .limit(5); // Limit to popular 5 songs (or modify logic)
 
@@ -76,6 +80,16 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
                   className="object-cover opacity-80"
                 />
                 <div className="absolute bottom-4 left-4">
+                  <Avatar className="w-24 h-24 mb-2 rounded-full overflow-hidden">
+                    <AvatarImage
+                      src={artist.image_url}
+                      alt={artist.name}
+                      className="rounded-full w-full h-full object-cover"
+                    />
+                    <AvatarFallback className="bg-gray-800 text-white">
+                      {artist.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex items-center gap-2">
                     <span className="text-blue-400 text-sm font-medium">Verified Artist</span>
                   </div>
@@ -87,7 +101,26 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
               {/* Controls and popular track */}
               <div className="p-6 bg-gradient-to-b from-neutral-900 to-black">
                 <div className="flex items-center gap-6">
-                  <Button size="icon" className="bg-green-500 hover:bg-green-600 text-black rounded-full">
+                  <Button
+                   size="icon"
+                   onClick={() => {
+                      if (!player || songs.length === 0) return;
+  
+                      const formattedSongs = songs.map((song) => ({
+                        id: song.id,
+                        title: song.title,
+                        artist: artist?.name ?? 'Unknown',
+                        image: song.cover_url ?? '/img/default-cover.jpg',
+                        src: song.audio_url ? `/audio/${song.audio_url}` : '',
+                        audio_url: song.audio_url ?? ''
+                      }));
+  
+                      player.setQueue(formattedSongs);
+                      player.setCurrentTrack(formattedSongs[0]);
+                      player.setIsPlaying(true);
+                   }} 
+                   className="bg-green-500 hover:bg-green-600 text-black rounded-full"
+                  >
                     <Play className="w-6 h-6" />
                   </Button>
                   <Button variant="secondary">Following</Button>

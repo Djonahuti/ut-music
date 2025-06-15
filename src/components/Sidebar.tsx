@@ -33,7 +33,7 @@ export function Sidebar() {
            key={href} 
            className={cn(
              "flex items-center gap-2 cursor-pointer hover:underline",
-             pathname === href ? "text-blue-500 font-semibold" : "text-gray-700"
+             pathname === href ? "text-blue-500 font-semibold" : "font-normal"
            )} 
            href={href}
           >
