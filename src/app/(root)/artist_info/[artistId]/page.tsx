@@ -12,25 +12,47 @@ interface Artist {
   image_url: string
 }
 
+interface Song {
+  id: string;
+  title: string;
+  cover_url?: string;
+}
+
 export default function ArtistInfo({ params }: { params: Promise<{ artistId: string }> }) {
   const [artist, setArtist] = useState<Artist | null>(null);
+  const [songs, setSongs] = useState<Song[]>([]);
   const [error, setError] = useState<string | null>(null);
   const { artistId } = React.use(params);
 
   useEffect(() => {
-    const fetchArtist = async () => {
-      const { data, error } = await supabase
+    const fetchArtistAndSongs = async () => {
+      const { data: artistData, error: artistError } = await supabase
         .from("artists")
         .select(`*`)
         .eq("id", artistId)
         .single();
-      if (error) {
-        setError(error.message);
+
+      if (artistError) {
+        setError(artistError.message);
+        return;
+      }
+
+      setArtist(artistData);
+
+      const { data: songsData, error: songsError } = await supabase
+        .from("songs")
+        .select("id, title, cover_url")
+        .eq("artist_id", artistId)
+        .limit(5); // Limit to popular 5 songs (or modify logic)
+
+      if (songsError) {
+        setError(songsError.message);
       } else {
-        setArtist(data);
+        setSongs(songsData || []);
       }
     };
-    fetchArtist();
+
+    fetchArtistAndSongs();
   }, [artistId]);
 
   if (error) {
@@ -73,16 +95,28 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
 
                 <div className="mt-6">
                   <h2 className="text-xl font-bold mb-4">Popular</h2>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-neutral-700 rounded-md"></div>
-                      <div>
-                        <p className="font-medium text-gray-400">WAIT FOR U (feat. Drake & Tems)</p>
-                        <p className="text-xs text-gray-400">1,087,280,173 plays</p>
-                      </div>
+              {songs.map((song) => (
+                <div key={song.id} className="flex justify-between items-center mb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-md">
+                      <Image
+                        src={song.cover_url || "/globe.svg"}
+                        alt={song.title}
+                        width={40}
+                        height={40}
+                        className="object-cover rounded-md"
+                      />
                     </div>
-                    <span className="text-sm text-gray-400">3:09</span>
+                    <div>
+                      <p className="font-medium text-gray-400">{song.title}</p>
+                      <p className="text-xs text-gray-400">1,000,000+ plays</p> {/* You can make this dynamic later */}
+                    </div>
                   </div>
+                  <span className="text-sm text-gray-400">
+                    3:30
+                  </span>
+                </div>
+              ))}
                 </div>
               </div>
 
