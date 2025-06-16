@@ -54,7 +54,11 @@ export function Artist() {
       {/* Navigation and Search Bar */}
       <section className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 space-y-4 md:space-y-0">
         <div className="flex items-center space-x-2">
-          <Button variant="outline" className="rounded-full text-gray-600 hover:bg-opacity-20 px-4 py-2 flex items-center">
+          <Button
+           variant="outline" 
+           onClick={() => router.push("/")}
+           className="rounded-full text-gray-600 hover:bg-opacity-20 px-4 py-2 flex items-center"
+          >
             <X className="h-4 w-4 mr-1" />
             Artists
           </Button>
