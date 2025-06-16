@@ -9,6 +9,7 @@ import { Controller, useForm } from "react-hook-form"
 
 type FormValues = {
   title: string
+  track_no: string
   artist_id: string
   album_id: string
   genre_id: string
@@ -18,6 +19,7 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
   const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
       title: "",
+      track_no: "",
       artist_id: "",
       album_id: "",
       genre_id: "",
@@ -44,12 +46,39 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
     })
   }, [])
 
+  async function getAudioDuration(file: File): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file)
+      const audio = new Audio()
+      audio.src = url
+      audio.addEventListener("loadedmetadata", () => {
+        const duration = Math.round(audio.duration)
+        URL.revokeObjectURL(url)
+        resolve(duration)
+      })
+      audio.addEventListener("error", (e) => {
+        URL.revokeObjectURL(url)
+        reject(new Error("Failed to load audio file"))
+      })
+    })
+  }  
+
   async function onSubmit(values: FormValues) {
     setLoading(true)
 
     // 1. Upload audio file to local server
     let audioFileName = ""
+    let duration = null    
     if (audioFile) {
+      // Calculate duration before upload
+      try {
+        duration = await getAudioDuration(audioFile)
+      } catch (err) {
+        alert("Could not read audio duration")
+        setLoading(false)
+        return
+      }
+
       const formData = new FormData()
       formData.append("file", audioFile)
       const res = await fetch("/api/upload-audio", {
@@ -83,11 +112,13 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
     // 3. Insert into songs table
     await supabase.from("songs").insert({
       title: values.title,
+      track_no: values.track_no,
       artist_id: values.artist_id,
       album_id: values.album_id,
       genre_id: values.genre_id,
       audio_url: audioFileName,
       cover_url: coverUrl,
+      duration: duration,
       // You may want to resolve artist_id and album_id here if needed
     })
 
@@ -116,6 +147,16 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
         )}
       />
       {errors.title && <div className="text-red-500">{errors.title.message}</div>}
+
+      <Controller
+        name="track_no"
+        control={control}
+        rules={{ required: "Track Number is required" }}
+        render={({ field }) => (
+          <Input placeholder="Track No" {...field} />
+        )}
+      />
+      {errors.track_no && <div className="text-red-500">{errors.track_no.message}</div>}
 
       <Controller
         name="artist_id"
