@@ -69,7 +69,7 @@ export default function AlbumDetails({ params }: { params: Promise<{ albumId: st
         .from("songs")
         .select("id, title, cover_url, plays, audio_url, album_id, duration, track_no")
         .eq("album_id", albumId)
-        .limit(5); // Limit to popular 5 songs (or modify logic)
+        .order('track_no', { ascending: true})
 
       if (error) {
         setError(error.message);

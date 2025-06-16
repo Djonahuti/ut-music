@@ -23,6 +23,7 @@ interface Song {
   plays: number;
   audio_url?: string;
   duration?: number;
+  track_no?: number;
 }
 
 function formatDuration(seconds: number) {
@@ -55,9 +56,9 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
 
       const { data: songsData, error: songsError } = await supabase
         .from("songs")
-        .select("id, title, cover_url, plays, audio_url, duration")
+        .select("id, title, cover_url, plays, audio_url, duration, track_no")
         .eq("artist_id", artistId)
-        .limit(5); // Limit to popular 5 songs (or modify logic)
+        .order('track_no', { ascending: true})
 
       if (songsError) {
         setError(songsError.message);
@@ -156,7 +157,7 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
                   {songs.map((song) => (
                     <div key={song.id} className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <span className="text-gray-400">1</span>
+                        <span className="text-gray-400">{song.track_no}</span>
                         <Image
                           src={song.cover_url || "/globe.svg"}
                           alt={song.title}
