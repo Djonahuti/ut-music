@@ -1,3 +1,4 @@
+import { MobileNav } from "@/components/shared/MobileNav";
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 
@@ -13,6 +14,8 @@ export default async function HomePage() {
   }
 
   return (
+    <>
+    <MobileNav />
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Recently Added</h1>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -33,5 +36,6 @@ export default async function HomePage() {
         ))}
       </div>
     </div>
+    </>
   );
 }

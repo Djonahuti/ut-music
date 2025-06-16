@@ -7,7 +7,6 @@ import MobileTabs from "./MobileTabs";
 
 import React, { ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
-import { MobileNav } from "./shared/MobileNav";
 
 export default function ResponsiveLayout({ children }: { children: ReactNode }) {
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -23,8 +22,7 @@ export default function ResponsiveLayout({ children }: { children: ReactNode }) 
   }  
   
   return (
-    <>
-      {isMobile && <MobileNav /> }    
+    <>    
      <div className="flex flex-col h-screen">
      {!isMobile && <Topbar />}
      <div className="flex flex-1 overflow-hidden">
