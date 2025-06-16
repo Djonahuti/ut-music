@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Ellipsis } from "lucide-react";
 
 interface Song {
@@ -100,10 +100,24 @@ export function Song() {
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem onClick={() => {/* handle minus from */}}>Add to Favorite</DropdownMenuItem>
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>Add to Playlist</DropdownMenuSubTrigger>
+                            <DropdownMenuPortal>
+                              <DropdownMenuSubContent>
+                                <DropdownMenuItem onClick={() => {/* handle add to */}}>Create New Playlist</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {/* handle add to */}}>Hot Playlist</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {/* handle add to */}}>Mixtape Playlist</DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>More...</DropdownMenuItem>
+                              </DropdownMenuSubContent>
+                            </DropdownMenuPortal>
+                          </DropdownMenuSub>
+                          <DropdownMenuItem onClick={() => {/* handle minus from */}}>Play Next</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => {/* handle minus from */}}>Play Later</DropdownMenuItem>
+                        </DropdownMenuGroup>                        
                         <DropdownMenuItem onClick={() => {/* handle add to */}}>Add to Playlist</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => {/* handle minus from */}}>Play Next</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => {/* handle minus from */}}>Play Later</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => {/* handle minus from */}}>Add to Favorite</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </span>
