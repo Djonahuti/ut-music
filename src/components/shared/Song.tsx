@@ -5,6 +5,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { Ellipsis } from "lucide-react";
 
 interface Song {
   id: string
@@ -28,6 +30,8 @@ function formatDuration(seconds: number) {
 export function Song() {
   const [songs, setSongs] = useState<Song[]>([])
   const [search, setSearch] = useState("")
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);    
 
   const fetchSongs = async () => {
     const { data } = await supabase
@@ -64,7 +68,12 @@ export function Song() {
         </TableHeader>
         <TableBody>
           {filtered.map((song) => (
-            <TableRow key={song.id} className="border-t">
+            <TableRow
+             key={song.id} 
+             className="border-t group"
+             onMouseEnter={() => setHoveredRow(song.id)}
+             onMouseLeave={() => setHoveredRow(null)}
+            >
               <TableCell>
                 <Image
                   src={song.cover_url}
@@ -74,12 +83,37 @@ export function Song() {
                   height={40}
                 />
               </TableCell>
-              <TableCell>{song.title}</TableCell>
+              <TableCell className="relative">
+                <span>{song.title}</span>
+                {(hoveredRow === song.id || openDropdown === song.id) && (
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2">
+                    <DropdownMenu
+                      open={openDropdown === song.id}
+                      onOpenChange={(open) => setOpenDropdown(open ? song.id : null)}
+                    >
+                      <DropdownMenuTrigger asChild>
+                        <button
+                         className="p-1 rounded hover:bg-muted transition ml-2"
+                         onClick={e => e.stopPropagation()}
+                        >
+                          <Ellipsis size={20} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => {/* handle add to */}}>Add to Playlist</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {/* handle minus from */}}>Play Next</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {/* handle minus from */}}>Play Later</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {/* handle minus from */}}>Add to Favorite</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </span>
+                )}                
+              </TableCell>
               <TableCell className="max-w-[150px] truncate">{song.artists.name}</TableCell>
               <TableCell className="max-w-[150px] truncate">{song.albums.name}</TableCell>
               <TableCell>{song.genres.name}</TableCell>
               <TableCell>{formatDuration(song.duration)}</TableCell>
-              <TableCell>{song.plays}</TableCell>
+              <TableCell>{song.plays}</TableCell>             
             </TableRow>
           ))}
         </TableBody>
