@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { Ellipsis } from "lucide-react";
+import { Ellipsis, List, Mic, Play, Shuffle } from "lucide-react";
 import { addSongToPlaylist, createPlaylist, fetchUserPlaylists } from "@/lib/actions";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/AuthContext";
@@ -84,8 +84,20 @@ export function Song() {
     }
   };
 
+  // Group songs by first letter for mobile alpha list
+  const groupedSongs = filtered.reduce((acc: Record<string, Song[]>, song) => {
+    const letter = song.title[0].toUpperCase();
+    if (!acc[letter]) acc[letter] = [];
+    acc[letter].push(song);
+    return acc;
+  }, {});
+
+  const alpha = Object.keys(groupedSongs).sort();  
+
   return (
-    <div className="space-y-4">
+   <div className="space-y-4">
+      {/* Desktop UI */}    
+    <div className="hidden md:block">
       <div className="flex justify-between items-center">
         <Input placeholder="Search songs..." value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
@@ -170,8 +182,7 @@ export function Song() {
                           </DropdownMenuSub>
                           <DropdownMenuItem onClick={() => {/* handle minus from */}}>Play Next</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => {/* handle minus from */}}>Play Later</DropdownMenuItem>
-                        </DropdownMenuGroup>                        
-                        <DropdownMenuItem onClick={() => {/* handle add to */}}>Add to Playlist</DropdownMenuItem>
+                        </DropdownMenuGroup>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </span>
@@ -187,5 +198,73 @@ export function Song() {
         </TableBody>
       </Table>
     </div>
+
+      {/* Mobile UI */}
+    <div className="block md:hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <button className="text-pink-500 font-semibold text-lg">&lt; Library</button>
+        <div className="flex items-center gap-2">
+          <button className="p-2"><List size={22} className="text-white" /></button>
+          <button className="p-2"><Ellipsis size={22} className="text-white" /></button>
+        </div>
+      </div>
+      <div className="px-4">
+        <h1 className="text-3xl font-bold mb-2">Songs</h1>
+        {/* Search */}
+        <div className="relative mb-4">
+          <input
+            className="w-full rounded-lg bg-[#232323] text-white py-2 pl-10 pr-10 placeholder-gray-400 focus:outline-none"
+            placeholder="Search"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <Mic className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+        </div>
+        {/* Play/Shuffle */}
+        <div className="flex gap-4 mb-4">
+          <button className="flex-1 flex items-center justify-center gap-2 bg-[#181818] rounded-lg py-3 text-pink-500 font-semibold text-lg">
+            <Play size={22} fill="currentColor" className="mr-1" /> Play
+          </button>
+          <button className="flex-1 flex items-center justify-center gap-2 bg-[#181818] rounded-lg py-3 text-pink-500 font-semibold text-lg">
+            <Shuffle size={22} className="mr-1" /> Shuffle
+          </button>
+        </div>
+      </div>
+      {/* Song List */}
+      <div className="overflow-y-auto pb-24">
+        {alpha.map(letter => (
+          <div key={letter}>
+            <div className="px-4 py-2 text-pink-500 font-bold text-lg">{letter}</div>
+            {groupedSongs[letter].map(song => (
+              <div key={song.id} className="flex items-center px-4 py-2 hover:bg-[#232323] transition group">
+                <Image
+                  src={song.cover_url}
+                  alt="cover"
+                  width={48}
+                  height={48}
+                  className="w-12 h-12 rounded object-cover mr-3"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{song.title}</div>
+                  <div className="text-gray-400 text-sm truncate">{song.artists.name}</div>
+                </div>
+                <button className="ml-2 p-2 rounded-full hover:bg-[#181818] transition">
+                  <Ellipsis size={22} className="text-gray-300" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      {/* Alpha index (right side) */}
+      <div className="fixed right-1 top-32 flex flex-col items-center z-10">
+        {alpha.map(letter => (
+          <span key={letter} className="text-pink-500 text-xs py-0.5">{letter}</span>
+        ))}
+      </div>
+    </div>      
+
+   </div>
   )
 }
