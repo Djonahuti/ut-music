@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
 interface Song {
   id: string;
@@ -53,6 +55,7 @@ export default function PlaylistDetailPage() {
 
   return (
     <div className="p-6 space-y-6">
+     <div className="fixed top-3 inset-x-0 z-50 left-3 text-3xl text-bold md:hidden"><Link href="/playlists"><ChevronLeft /></Link></div>        
       {playlist ? (
         <>
           <h1 className="text-2xl font-bold">{playlist.title}</h1>
