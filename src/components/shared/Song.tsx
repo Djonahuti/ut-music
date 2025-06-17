@@ -5,11 +5,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { Ellipsis, List, Mic, Play, Shuffle } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { Ellipsis, List, Mic, Play, PlayCircle, Shuffle } from "lucide-react";
 import { addSongToPlaylist, createPlaylist, fetchUserPlaylists } from "@/lib/actions";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/AuthContext";
+import Link from "next/link";
+import { usePlayer } from "@/lib/playerContext";
+import { Button } from "../ui/button";
 
 interface Song {
   id: string
@@ -22,6 +25,7 @@ interface Song {
   albums: { name: string };
   genres: { name: string };
   plays: number;
+  audio_url: string;
 }
 
 function formatDuration(seconds: number) {
@@ -31,6 +35,7 @@ function formatDuration(seconds: number) {
 }
 
 export function Song() {
+  const player = usePlayer();
   const [songs, setSongs] = useState<Song[]>([])
   const [search, setSearch] = useState("")
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
@@ -39,6 +44,7 @@ export function Song() {
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [creatingPlaylist, setCreatingPlaylist] = useState(false);
   const [newPlaylistTitle, setNewPlaylistTitle] = useState("");
+  const [scrolled, setScrolled] = useState(false);
 
   const fetchSongs = async () => {
     const { data } = await supabase
@@ -94,12 +100,55 @@ export function Song() {
 
   const alpha = Object.keys(groupedSongs).sort();  
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
    <div className="space-y-4">
       {/* Desktop UI */}    
     <div className="hidden md:block">
       <div className="flex justify-between items-center">
         <Input placeholder="Search songs..." value={search} onChange={(e) => setSearch(e.target.value)} />
+         <DropdownMenu>
+           <DropdownMenuTrigger
+            className="p-1 rounded hover:bg-muted transition ml-2"
+           >
+             <Ellipsis size={20} color="blue" />
+           </DropdownMenuTrigger>
+           <DropdownMenuContent>
+             <DropdownMenuLabel>...</DropdownMenuLabel>
+             <DropdownMenuSeparator />             
+             <DropdownMenuItem>
+               <Button
+                 className="flex items-center gap-2 py-2 cursor-pointer hover:text-blue-600"
+                 onClick={() => {
+                    if (!player || songs.length === 0) return;
+  
+                    const formattedSongs = songs.map((song) => ({
+                      id: song.id,
+                      title: song.title,
+                      artist: song.artists?.name ?? 'Unknown',
+                      album: song.albums?.name ?? 'Unknown',
+                      image: song.cover_url ?? '/img/default-cover.jpg',
+                      src: song.audio_url ? `/audio/${song.audio_url}` : '',
+                      audio_url: song.audio_url ?? ''
+                    }));
+  
+                    player.setQueue(formattedSongs);
+                    player.setCurrentTrack(formattedSongs[0]);
+                    player.setIsPlaying(true);
+                 }}
+                 variant="ghost"
+               >
+                <span className="flex items-center bg-blue-600 rounded-full"><PlayCircle /></span>
+                <span>Play All</span>
+               </Button>                    
+             </DropdownMenuItem>             
+           </DropdownMenuContent>
+         </DropdownMenu>         
       </div>
       <Table className="w-full text-left">
         <TableHeader>
@@ -202,31 +251,58 @@ export function Song() {
       {/* Mobile UI */}
     <div className="block md:hidden">
       {/* Header */}
+     <div
+      className={`fixed top-0 left-0 mb-3 w-full z-20 bg-white dark:bg-[#020617] transition-colors ${
+        scrolled ? "bg-black" : ""
+      }`}
+     >
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <button className="text-pink-500 font-semibold text-lg">&lt; Library</button>
+        <button className="text-pink-500 font-semibold text-lg"><Link href="/">&lt; Library</Link></button>
         <div className="flex items-center gap-2">
-          <button className="p-2"><List size={22} className="text-white" /></button>
-          <button className="p-2"><Ellipsis size={22} className="text-white" /></button>
+          <button className="p-2"><List size={22} className="text-pink-500" />
+          </button>
+          <button className="p-2"><Ellipsis size={22} className="text-pink-500" /></button>
         </div>
       </div>
-      <div className="px-4">
+     </div> 
+
+      <div className="px-4 mt-15">
         <h1 className="text-3xl font-bold mb-2">Songs</h1>
         {/* Search */}
         <div className="relative mb-4">
           <input
-            className="w-full rounded-lg bg-[#232323] text-white py-2 pl-10 pr-10 placeholder-gray-400 focus:outline-none"
+            className="w-full rounded-lg bg-[#f3f4f6] dark:bg-[#232323] py-2 pl-10 pr-10 dark:placeholder-gray-400 focus:outline-none"
             placeholder="Search"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <Mic className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <Mic className="absolute right-3 top-1/2 -translate-y-1/2 dark:text-gray-400" size={20} />
         </div>
         {/* Play/Shuffle */}
         <div className="flex gap-4 mb-4">
-          <button className="flex-1 flex items-center justify-center gap-2 bg-[#181818] rounded-lg py-3 text-pink-500 font-semibold text-lg">
+          <button
+           className="flex-1 flex items-center justify-center gap-2 bg-[#f3f4f6] dark:bg-[#181818] rounded-lg py-3 text-pink-500 font-semibold text-lg"
+           onClick={() => {
+              if (!player || songs.length === 0) return;
+  
+              const formattedSongs = songs.map((song) => ({
+                id: song.id,
+                title: song.title,
+                artist: song.artists?.name ?? 'Unknown',
+                album: song.albums?.name ?? 'Unknown',
+                image: song.cover_url ?? '/img/default-cover.jpg',
+                src: song.audio_url ? `/audio/${song.audio_url}` : '',
+                audio_url: song.audio_url ?? ''
+              }));
+  
+              player.setQueue(formattedSongs);
+              player.setCurrentTrack(formattedSongs[0]);
+              player.setIsPlaying(true);
+           }}           
+          >
             <Play size={22} fill="currentColor" className="mr-1" /> Play
           </button>
-          <button className="flex-1 flex items-center justify-center gap-2 bg-[#181818] rounded-lg py-3 text-pink-500 font-semibold text-lg">
+          <button className="flex-1 flex items-center justify-center gap-2 bg-[#f3f4f6] dark:bg-[#181818] rounded-lg py-3 text-pink-500 font-semibold text-lg">
             <Shuffle size={22} className="mr-1" /> Shuffle
           </button>
         </div>
