@@ -7,6 +7,9 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Ellipsis } from "lucide-react";
+import { addSongToPlaylist, createPlaylist, fetchUserPlaylists } from "@/lib/actions";
+import { toast } from "sonner";
+import { useAuth } from "@/lib/AuthContext";
 
 interface Song {
   id: string
@@ -31,7 +34,11 @@ export function Song() {
   const [songs, setSongs] = useState<Song[]>([])
   const [search, setSearch] = useState("")
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);    
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);   
+  const user = useAuth();
+  const [playlists, setPlaylists] = useState<any[]>([]);
+  const [creatingPlaylist, setCreatingPlaylist] = useState(false);
+  const [newPlaylistTitle, setNewPlaylistTitle] = useState("");
 
   const fetchSongs = async () => {
     const { data } = await supabase
@@ -48,6 +55,34 @@ export function Song() {
   const filtered = songs.filter((a) =>
     a.title.toLowerCase().includes(search.toLowerCase())
   )
+
+  useEffect(() => {
+    if (user && user.user && user.user.id) {
+      fetchUserPlaylists(user.user.id).then(setPlaylists).catch(console.error);
+    }
+  }, [user]);  
+
+  const handleAddToPlaylist = async (playlistId: string, songId: string) => {
+    try {
+      await addSongToPlaylist(playlistId, songId);
+      toast.success("Song added to playlist");
+    } catch (err) {
+      toast.error("Failed to add song");
+    }
+  };
+
+  const handleCreatePlaylist = async () => {
+    if (!newPlaylistTitle || !user?.user?.id) return;
+    try {
+      const playlist = await createPlaylist(user.user.id, newPlaylistTitle);
+      setPlaylists([playlist, ...playlists]);
+      setCreatingPlaylist(false);
+      setNewPlaylistTitle("");
+      toast.success("Playlist created");
+    } catch (err) {
+      toast.error("Failed to create playlist");
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -106,9 +141,28 @@ export function Song() {
                             <DropdownMenuSubTrigger>Add to Playlist</DropdownMenuSubTrigger>
                             <DropdownMenuPortal>
                               <DropdownMenuSubContent>
-                                <DropdownMenuItem onClick={() => {/* handle add to */}}>Create New Playlist</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => {/* handle add to */}}>Hot Playlist</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => {/* handle add to */}}>Mixtape Playlist</DropdownMenuItem>
+                                {playlists.map((p) => (
+                                  <DropdownMenuItem key={p.id} onClick={() => handleAddToPlaylist(p.id, song.id)}>
+                                    {p.title}
+                                  </DropdownMenuItem>
+                                ))}
+                                <DropdownMenuSeparator />
+                                {creatingPlaylist ? (
+                                  <div className="flex items-center gap-2 px-2">
+                                    <input
+                                      type="text"
+                                      className="border rounded p-1 text-sm w-full"
+                                      value={newPlaylistTitle}
+                                      onChange={(e) => setNewPlaylistTitle(e.target.value)}
+                                      placeholder="New Playlist"
+                                    />
+                                    <button onClick={handleCreatePlaylist} className="text-xs text-blue-500">Add</button>
+                                  </div>
+                                ) : (
+                                  <DropdownMenuItem onClick={() => setCreatingPlaylist(true)}>
+                                    + Create New Playlist
+                                  </DropdownMenuItem>
+                                )}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem>More...</DropdownMenuItem>
                               </DropdownMenuSubContent>

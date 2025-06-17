@@ -1,12 +1,32 @@
 "use client";
+import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { IconAlbum, IconCalendarWeekFilled, IconMicrophone, IconPlaylist } from "@tabler/icons-react";
 import { Guitar, Music2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+
+interface Playlist {
+  id: string;
+  title: string;
+}
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+
+  useEffect(() => {
+    const fetchPlaylists = async () => {
+      const { data, error } = await supabase
+        .from("playlists")
+        .select("id, title")
+        .order("created_at", { ascending: false });
+      if (!error) setPlaylists(data || []);
+    };
+    fetchPlaylists();
+  }, []);
+
   const libraryItems = [
     { icon: <IconCalendarWeekFilled />, label: "Recently Added", href: "/" },
     { icon: <IconMicrophone />, label: "Artists", href: "/artists" },
@@ -16,13 +36,6 @@ export function Sidebar() {
     { icon: <IconPlaylist />, label: "Playlist", href: "/playlists" },
   ];
 
-  const playlistItems = [
-    "Hot 9JA 2025",
-    "Best of Kendrick Lamar",
-    "Hot UK Rap 2025",
-    "Hot R&B Playlist",
-    "Slow Vibes",
-  ];
 
   return (
     <aside className="w-64 p-4 border-r overflow-y-auto hidden md:block">
@@ -44,9 +57,18 @@ export function Sidebar() {
       </nav>
       <h2 className="font-semibold mb-2">Music Playlists</h2>
       <ul className="space-y-1">
-        {playlistItems.map((name) => (
-          <li key={name} className="cursor-pointer hover:underline text-sm">
-            {name}
+        {playlists.map((playlist) => (
+          <li key={playlist.id}>
+            <Link
+              href={`/playlist/${playlist.id}`}
+              className={cn(
+                "flex items-center gap-2 py-2 cursor-pointer hover:underline",
+                pathname === `/playlists/${playlist.id}` ? "text-pink-700 font-semibold" : "font-normal"
+              )}
+            >
+            <span className="flex items-center"><IconPlaylist /></span>
+            <span>{playlist.title}</span>
+            </Link>
           </li>
         ))}
       </ul>

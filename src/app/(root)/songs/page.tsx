@@ -1,11 +1,14 @@
 import { Song } from "@/components/shared/Song";
+import { AuthProvider } from "@/lib/AuthContext";
 
 
 export default function SongsPage() {
   return (
     <div>
       <h1 className="text-xl font-semibold mb-4">Songs</h1>
-      <Song />
+      <AuthProvider>
+        <Song />
+      </AuthProvider>
     </div>
   );
 }
