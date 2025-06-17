@@ -58,7 +58,15 @@ export default function PlaylistDetailPage() {
      <div className="fixed top-3 inset-x-0 z-50 left-3 text-3xl text-bold md:hidden"><Link href="/playlists"><ChevronLeft /></Link></div>        
       {playlist ? (
         <>
-          <h1 className="text-2xl font-bold">{playlist.title}</h1>
+          <div>
+            <h1 className="text-2xl font-bold">{playlist.title}</h1>
+            <Link
+              href={`/playlist/${id}/edit`}
+              className="text-sm text-blue-500 float-right"
+            >
+              Edit
+            </Link>                        
+          </div>
           <p className="text-sm text-muted-foreground">{playlist.description}</p>
 
           <ul className="divide-y mt-4">
