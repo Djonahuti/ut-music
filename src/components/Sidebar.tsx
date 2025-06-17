@@ -33,7 +33,6 @@ export function Sidebar() {
     { icon: <IconAlbum />, label: "Albums", href: "/albums" },
     { icon: <Music2 />, label: "Songs", href: "/songs" },
     { icon: <Guitar />, label: "Genre", href: "/genres" },
-    { icon: <IconPlaylist />, label: "Playlist", href: "/playlists" },
   ];
 
 

@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { fetchUserPlaylists } from "@/lib/actions";
 import { useAuth } from "@/lib/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function ViewPlaylists() {
   const user = useAuth();
+  const router = useRouter();  
   const [playlists, setPlaylists] = useState<any[]>([]);
 
   useEffect(() => {
@@ -14,6 +16,10 @@ export default function ViewPlaylists() {
     }
   }, [user]);
 
+  const handlePlaylistClick = (playlistId: string) => {
+    router.push(`/playlist/${playlistId}`);
+  };
+
   return (
     <div className="p-4 space-y-4">
       {playlists.length === 0 ? (
@@ -21,7 +27,10 @@ export default function ViewPlaylists() {
       ) : (
         <ul className="space-y-2">
           {playlists.map((playlist) => (
-            <li key={playlist.id} className="border p-3 rounded shadow">
+            <li
+             key={playlist.id} className="border p-3 rounded shadow"
+             onClick={() => handlePlaylistClick(playlist.id)}
+            >
               <h2 className="font-semibold">{playlist.title}</h2>
               <p className="text-sm text-muted-foreground">{playlist.description || "No description"}</p>
             </li>
