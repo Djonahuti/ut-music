@@ -5,8 +5,10 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, Ellipsis, Pencil, Shuffle, Trash2 } from "lucide-react";
+import { ChevronLeft, Ellipsis, Pencil, PlayCircle, Shuffle, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { usePlayer } from "@/lib/playerContext";
+import { Button } from "@/components/ui/button";
 
 interface Song {
   id: string;
@@ -16,6 +18,7 @@ interface Song {
   artists: { name: string };
   albums: { name: string; release_year: number };
   genres: { name: string };
+  audio_url: string;
 }
 
 interface Playlist {
@@ -28,6 +31,7 @@ interface Playlist {
 
 export default function PlaylistDetailPage() {
   const params = useParams();
+  const player = usePlayer();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
@@ -103,6 +107,33 @@ export default function PlaylistDetailPage() {
                 <span>Delete Playlist</span>
                </Link>                    
              </DropdownMenuItem>
+             <DropdownMenuSeparator />             
+             <DropdownMenuItem>
+               <Button
+                 className="flex items-center gap-2 py-2 cursor-pointer hover:text-blue-600"
+                 onClick={() => {
+                    if (!player || songs.length === 0) return;
+  
+                    const formattedSongs = songs.map((song) => ({
+                      id: song.id,
+                      title: song.title,
+                      artist: song.artists?.name ?? 'Unknown',
+                      album: song.albums?.name ?? 'Unknown',
+                      image: song.cover_url ?? '/img/default-cover.jpg',
+                      src: song.audio_url ? `/audio/${song.audio_url}` : '',
+                      audio_url: song.audio_url ?? ''
+                    }));
+  
+                    player.setQueue(formattedSongs);
+                    player.setCurrentTrack(formattedSongs[0]);
+                    player.setIsPlaying(true);
+                 }}
+                 variant="ghost"
+               >
+                <span className="flex items-center bg-blue-600 rounded-full"><PlayCircle /></span>
+                <span>Play All</span>
+               </Button>                    
+             </DropdownMenuItem>             
            </DropdownMenuContent>
          </DropdownMenu> 
       </div>
@@ -171,6 +202,33 @@ export default function PlaylistDetailPage() {
                      <span>Delete Playlist</span>
                     </Link>                    
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />             
+                  <DropdownMenuItem>
+                    <Button
+                      className="flex items-center gap-2 py-2 cursor-pointer hover:text-blue-600"
+                      onClick={() => {
+                         if (!player || songs.length === 0) return;
+  
+                         const formattedSongs = songs.map((song) => ({
+                           id: song.id,
+                           title: song.title,
+                           artist: song.artists?.name ?? 'Unknown',
+                           album: song.albums?.name ?? 'Unknown',
+                           image: song.cover_url ?? '/img/default-cover.jpg',
+                           src: song.audio_url ? `/audio/${song.audio_url}` : '',
+                           audio_url: song.audio_url ?? ''
+                         }));
+  
+                         player.setQueue(formattedSongs);
+                         player.setCurrentTrack(formattedSongs[0]);
+                         player.setIsPlaying(true);
+                      }}
+                      variant="ghost"
+                    >
+                     <span className="flex items-center bg-blue-600 rounded-full"><PlayCircle /></span>
+                     <span>Play All</span>
+                    </Button>                    
+                  </DropdownMenuItem>                  
                 </DropdownMenuContent>
               </DropdownMenu>              
             </div>
