@@ -79,6 +79,7 @@ useEffect(() => {
         {player?.queue && player.queue.length > 0 ? (
           player.queue.map((track, idx) => (
            <>
+            <DropdownMenuSeparator />
             <DropdownMenuItem key={track.id + idx} className="flex items-center gap-2">
               <img
                 src={track.image}
