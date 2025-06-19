@@ -76,9 +76,25 @@ useEffect(() => {
           <DropdownMenuContent>
             <DropdownMenuLabel>Up Next</DropdownMenuLabel>
             <DropdownMenuSeparator />             
-            <DropdownMenuItem>
-                  Track 1
-            </DropdownMenuItem>             
+        {player?.queue && player.queue.length > 0 ? (
+          player.queue.map((track, idx) => (
+           <>
+            <DropdownMenuItem key={track.id + idx} className="flex items-center gap-2">
+              <img
+                src={track.image}
+                alt={track.title}
+                className="w-8 h-8 rounded object-cover"
+              />
+              <div className="flex flex-col min-w-0">
+                <span className="truncate font-medium">{track.title}</span>
+                <span className="truncate text-xs text-muted-foreground">{track.artist}</span>
+              </div>
+            </DropdownMenuItem>
+            </>
+          ))
+        ) : (
+          <DropdownMenuItem className="text-muted-foreground">Queue is empty</DropdownMenuItem>
+        )}            
           </DropdownMenuContent>
         </DropdownMenu>       
         <div className="flex items-center border rounded-md px-2">
