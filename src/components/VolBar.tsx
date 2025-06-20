@@ -32,7 +32,7 @@ export const VolBar = () => {
       >
         <Progress value={volume} className="h-2 bg-gray-500" />
       </div>
-      <Volume2 className="w-5 h-5 text-gray-500" />
+      <Volume2 className="w-5 h-5" />
     </div>
   )
 }

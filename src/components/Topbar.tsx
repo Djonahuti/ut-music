@@ -5,7 +5,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Input } from "./ui/input";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { User } from "@/types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -78,9 +78,9 @@ useEffect(() => {
             <DropdownMenuSeparator />             
         {player?.queue && player.queue.length > 0 ? (
           player.queue.map((track, idx) => (
-           <>
+           <React.Fragment key={track.id + '-' + idx}>
             <DropdownMenuSeparator />
-            <DropdownMenuItem key={track.id + idx} className="flex items-center gap-2">
+            <DropdownMenuItem className="flex items-center gap-2">
               <img
                 src={track.image}
                 alt={track.title}
@@ -91,7 +91,7 @@ useEffect(() => {
                 <span className="truncate text-xs text-muted-foreground">{track.artist}</span>
               </div>
             </DropdownMenuItem>
-            </>
+            </React.Fragment>
           ))
         ) : (
           <DropdownMenuItem className="text-muted-foreground">Queue is empty</DropdownMenuItem>

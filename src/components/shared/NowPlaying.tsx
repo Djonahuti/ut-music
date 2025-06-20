@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { FastForward, ListOrdered, MessageSquareText, MoreHorizontal, Pause, Play, Rewind, Star, Waves } from 'lucide-react';
 import { TimeProgress } from '../TimeProgress';
 import { VolBar } from '../VolBar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 function formatTime(seconds: number) {
   if (isNaN(seconds)) return '0:00';
@@ -111,7 +112,37 @@ const NowPlaying: React.FC = () => {
       <div className="flex justify-between items-center w-full max-w-md px-4 text-gray-600">
         <MessageSquareText className="w-5 h-5" />
         <Waves className="w-5 h-5" />
-        <ListOrdered className="w-5 h-5" />
+        <DropdownMenu>
+          <DropdownMenuTrigger
+           className="p-1 rounded hover:bg-muted transition ml-2"
+          >
+         <ListOrdered className="w-5 h-5" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>Up Next</DropdownMenuLabel>
+            <DropdownMenuSeparator />             
+        {player?.queue && player.queue.length > 0 ? (
+          player.queue.map((track, idx) => (
+           <React.Fragment key={track.id + '-' + idx}>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="flex items-center gap-2">
+              <img
+                src={track.image}
+                alt={track.title}
+                className="w-8 h-8 rounded object-cover"
+              />
+              <div className="flex flex-col min-w-0">
+                <span className="truncate font-medium">{track.title}</span>
+                <span className="truncate text-xs text-muted-foreground">{track.artist}</span>
+              </div>
+            </DropdownMenuItem>
+            </React.Fragment>
+          ))
+        ) : (
+          <DropdownMenuItem className="text-muted-foreground">Queue is empty</DropdownMenuItem>
+        )}            
+          </DropdownMenuContent>
+        </DropdownMenu> 
       </div>
       </div>
     </div>
