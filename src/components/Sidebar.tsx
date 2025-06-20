@@ -45,7 +45,7 @@ export function Sidebar() {
            key={href} 
            className={cn(
              "flex items-center gap-2 cursor-pointer hover:underline",
-             pathname === href ? "text-blue-500 font-semibold" : "font-normal"
+             pathname === href ? "text-pink-500 font-semibold" : "font-normal"
            )} 
            href={href}
           >
@@ -62,7 +62,7 @@ export function Sidebar() {
               href={`/playlist/${playlist.id}`}
               className={cn(
                 "flex items-center gap-2 py-2 cursor-pointer hover:underline",
-                pathname === `/playlists/${playlist.id}` ? "text-pink-700 font-semibold" : "font-normal"
+                pathname === `/playlist/${playlist.id}` ? "text-pink-500 font-semibold" : "font-normal"
               )}
             >
             <span className="flex items-center"><IconPlaylist /></span>

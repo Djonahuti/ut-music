@@ -100,7 +100,7 @@ export default function PlaylistDetailPage() {
                 className="rounded shadow object-cover"
               />
             ) : (
-              <div className="w-[140px] h-[140px] rounded-lg shadow bg-gradient-to-br from-gray-200 to-gray-400 flex items-center justify-center">
+              <div className="w-[140px] h-[140px] rounded-lg shadow bg-gradient-to-br from-green-300 via-gray-400 to-purple-500 flex items-center justify-center">
                 <span className="text-xl font-semibold text-gray-800 text-center px-2">
                   {playlist.title}
                 </span>
@@ -119,7 +119,7 @@ export default function PlaylistDetailPage() {
             </div>
             <div className="flex items-center justify-between">
               <button
-               className={`flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-800 ${player && player.isShuffling ? 'text-green-300' : ''}`}
+               className={`flex items-center gap-2 px-4 py-2 text-pink-500 hover:text-pink-600 ${player && player.isShuffling ? 'text-pink-800' : ''}`}
                onClick={player ? player.toggleShuffle : undefined}
               >
                 <Shuffle size={18} /><p className="hidden md:block">Shuffle All</p>
@@ -128,7 +128,7 @@ export default function PlaylistDetailPage() {
                 <DropdownMenuTrigger
                  className="p-1 rounded hover:bg-muted transition ml-2"
                 >
-                  <div className="bg-blue-600 text-white rounded-full p-3">
+                  <div className="bg-pink-500 text-white rounded-full p-3">
                     <Ellipsis size={20} />                    
                   </div>
                 </DropdownMenuTrigger>
