@@ -302,7 +302,10 @@ export function Song() {
           >
             <Play size={22} fill="currentColor" className="mr-1" /> Play
           </button>
-          <button className="flex-1 flex items-center justify-center gap-2 bg-[#f3f4f6] dark:bg-[#181818] rounded-lg py-3 text-pink-500 font-semibold text-lg">
+          <button 
+          className={`flex-1 flex items-center justify-center gap-2 bg-[#f3f4f6] dark:bg-[#181818] rounded-lg py-3 text-pink-500 font-semibold text-lg ${player && player.isShuffling ? 'text-pink-700 bg-[#d1d2d4] dark:bg-[#1a1919]' : ''}`}
+          onClick={player ? player.toggleShuffle : undefined}
+          >
             <Shuffle size={22} className="mr-1" /> Shuffle
           </button>
         </div>

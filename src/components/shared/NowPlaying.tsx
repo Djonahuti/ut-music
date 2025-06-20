@@ -110,7 +110,10 @@ const NowPlaying: React.FC = () => {
 
       {/* Bottom Icons */}
       <div className="flex justify-between items-center w-full max-w-md px-4 text-gray-600">
-        <Shuffle className="w-5 h-5" />
+        <Shuffle
+         className={`w-5 h-5 cursor-pointer transition ${player.isShuffling ? 'text-pink-500' : ''}`}
+         onClick={player.toggleShuffle}
+        />
         <Waves className="w-5 h-5" />
         <DropdownMenu>
           <DropdownMenuTrigger

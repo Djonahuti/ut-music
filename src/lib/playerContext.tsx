@@ -69,6 +69,9 @@ interface PlayerContextType {
     src: string;
     audio_url: string;
   }[];  
+  shuffleQueue: () => void;
+  isShuffling: boolean;
+  toggleShuffle: () => void;  
 }
 
 const PlayerContext = createContext<PlayerContextType | null>(null)
@@ -80,6 +83,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [isShuffling, setIsShuffling] = useState(false);
+  const [originalQueue, setOriginalQueue] = useState<typeof queue>([]);  
   const [queue, setQueue] = useState<{
     id: string;
     title: string;
@@ -126,6 +131,16 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
           audio_url: song.audio_url ?? ''
         }))
       )
+      setOriginalQueue(
+        mapped.map((song) => ({
+          id: song.id,
+          title: song.title,
+          artist: song.artists?.name ?? 'Unknown',
+          image: song.image,
+          src: song.src ?? '',
+          audio_url: song.audio_url ?? ''
+        }))
+      )      
     }
     fetchSongs()
   }, [])
@@ -257,6 +272,49 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [currentTrack, isPlaying, tracks]);
 
+  const shuffleQueue = useCallback(() => {
+    setQueue(prevQueue => {
+      if (prevQueue.length <= 1) return prevQueue;
+      // Fisher-Yates shuffle
+      const array = [...prevQueue];
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    });
+  }, []);  
+
+  const shuffleArray = (array: typeof queue) => {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+  
+  const toggleShuffle = useCallback(() => {
+    setIsShuffling((prev) => {
+      if (!prev) {
+        // Turn shuffle ON
+        setQueue((prevQueue) => {
+          if (prevQueue.length <= 1) return prevQueue;
+          // Keep current track at the top
+          const current = prevQueue[currentIndex];
+          const rest = prevQueue.filter((_, idx) => idx !== currentIndex);
+          const shuffled = shuffleArray(rest);
+          return [current, ...shuffled];
+        });
+      } else {
+        // Turn shuffle OFF, restore original order
+        setQueue(originalQueue);
+      }
+      return !prev;
+    });
+  // eslint-disable-next-line
+  }, [currentIndex, originalQueue]);  
+
   return (
     <PlayerContext.Provider
      value={{
@@ -269,6 +327,9 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
          currentTime,
          queue,
          setQueue,
+         shuffleQueue,
+         isShuffling,
+         toggleShuffle,
          playNext,
          playPrev,
          isMini,

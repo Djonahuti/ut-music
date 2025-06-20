@@ -49,7 +49,11 @@ export const TrackInfo = () => {
      ):(
       <Image src="/globe.svg" alt="default cover" width={40} height={40} className="rounded-sm" />
      )}
-      <Button variant="ghost" size="icon">
+      <Button
+       variant="ghost" size="icon"
+       onClick={player.toggleShuffle}
+       className={`cursor-pointer transition ${player.isShuffling ? 'text-pink-500' : ''}`}
+      >
         <Shuffle className="w-4 h-4" />
       </Button>
       <div className="flex flex-col text-center flex-grow">
