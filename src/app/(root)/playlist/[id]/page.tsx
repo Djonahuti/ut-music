@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, Ellipsis, Pencil, PlayCircle, Shuffle, Trash2 } from "lucide-react";
+import { Ellipsis, Mic, MoreHorizontal, Pencil, Play, PlayCircle, Shuffle, Trash2, UserPlus } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { usePlayer } from "@/lib/playerContext";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,8 @@ export default function PlaylistDetailPage() {
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
+  const [scrolled, setScrolled] = useState(false); 
+  const [search, setSearch] = useState("")   
 
   useEffect(() => {
     const fetchPlaylistDetails = async () => {
@@ -73,73 +75,19 @@ export default function PlaylistDetailPage() {
   const totalMinutes = Math.floor(totalDuration / 60);
   const totalSeconds = totalDuration % 60;
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);  
+
   return (
-    <div className="w-full p-6 mx-auto">
-     <div className="flex justify-between">
-      <div className="fixed top-3 left-3 z-50 text-3xl font-bold md:hidden">
-        <Link href="/playlists"><ChevronLeft /></Link>
-      </div>
-      <div className="fixed top-3 right-3 z-50 text-3xl font-bold md:hidden">
-         <DropdownMenu>
-           <DropdownMenuTrigger
-            className="p-1 rounded hover:bg-muted transition ml-2"
-           >
-             <Ellipsis size={20} color="blue" />
-           </DropdownMenuTrigger>
-           <DropdownMenuContent>
-             <DropdownMenuLabel>...</DropdownMenuLabel>
-             <DropdownMenuSeparator />
-             <DropdownMenuItem>
-               <Link
-                 href={`/playlist/${id}/edit`}
-                 className="flex items-center gap-2 py-2 cursor-pointer hover:text-blue-600"
-               >
-                <span className="flex items-center"><Pencil /></span>
-                <span>Edit Playlist</span>
-               </Link>                    
-             </DropdownMenuItem>
-             <DropdownMenuItem>
-               <Link
-                 href="/"
-                 className="flex items-center gap-2 py-2 cursor-pointer hover:text-blue-600"
-               >
-                <span className="flex items-center"><Trash2 color="red" /></span>
-                <span>Delete Playlist</span>
-               </Link>                    
-             </DropdownMenuItem>
-             <DropdownMenuSeparator />             
-             <DropdownMenuItem>
-               <Button
-                 className="flex items-center gap-2 py-2 cursor-pointer hover:text-blue-600"
-                 onClick={() => {
-                    if (!player || songs.length === 0) return;
-  
-                    const formattedSongs = songs.map((song) => ({
-                      id: song.id,
-                      title: song.title,
-                      artist: song.artists?.name ?? 'Unknown',
-                      album: song.albums?.name ?? 'Unknown',
-                      image: song.cover_url ?? '/img/default-cover.jpg',
-                      src: song.audio_url ? `/audio/${song.audio_url}` : '',
-                      audio_url: song.audio_url ?? ''
-                    }));
-  
-                    player.setQueue(formattedSongs);
-                    player.setCurrentTrack(formattedSongs[0]);
-                    player.setIsPlaying(true);
-                 }}
-                 variant="ghost"
-               >
-                <span className="flex items-center bg-blue-600 rounded-full"><PlayCircle /></span>
-                <span>Play All</span>
-               </Button>                    
-             </DropdownMenuItem>             
-           </DropdownMenuContent>
-         </DropdownMenu> 
-      </div>
-     </div> 
+    <>
       {playlist ? (
-        <>
+        <div className="space-y-4">
+      {/* Desktop UI */}
+        <div className="hidden md:block">
+         <div className="w-full p-6 mx-auto">
           {/* Header */}
           <div className="flex items-center gap-6 mb-8">
             <div>
@@ -170,7 +118,10 @@ export default function PlaylistDetailPage() {
               </label>
             </div>
             <div className="flex items-center justify-between">
-              <button className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-800">
+              <button
+               className={`flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-800 ${player && player.isShuffling ? 'text-green-300' : ''}`}
+               onClick={player ? player.toggleShuffle : undefined}
+              >
                 <Shuffle size={18} /><p className="hidden md:block">Shuffle All</p>
               </button>
               <DropdownMenu>
@@ -237,7 +188,28 @@ export default function PlaylistDetailPage() {
           {/* Song List */}
           <ul className="divide-y border-t">
             {songs.map((song) => (
-              <li key={song.id} className="flex items-center py-4 gap-4">
+              <li
+               key={song.id} 
+               className="flex items-center py-4 gap-4"
+               onClick={() => {
+                 if (!player) return;
+                 // Format the queue from the songs list
+                 const formattedQueue = songs.map((s) => ({
+                   id: s.id,
+                   title: s.title,
+                   artist: s.artists?.name ?? 'Unknown',
+                   image: s.cover_url ?? '/img/default-cover.jpg',
+                   src: s.audio_url ? `/audio/${s.audio_url}` : '',
+                   audio_url: s.audio_url ?? ''
+                 }));
+                 // Find the index of the clicked song in the songs list
+                 const songIdx = songs.findIndex((s) => s.id === song.id);
+                 // Set the queue and current track
+                 player.setQueue(formattedQueue);
+                 player.setCurrentTrack(formattedQueue[songIdx]);
+                 player.setIsPlaying(true);
+               }}               
+              >
                 <Image
                   src={song.cover_url}
                   alt={song.title}
@@ -263,10 +235,188 @@ export default function PlaylistDetailPage() {
               </li>
             ))}
           </ul>
-        </>
+         </div> 
+        </div>
+      {/* Mobile UI */}        
+        <div className="block md:hidden">
+         <div
+          className={`fixed top-0 left-0 mb-3 w-full z-20 bg-white dark:bg-[#020617] transition-colors ${
+            scrolled ? "bg-black" : ""
+          }`}
+         >
+          <div className="flex items-center justify-between px-4 pt-4 pb-2">
+            <button className="text-pink-500 font-semibold text-lg"><Link href="/playlists">&lt; Playlist</Link></button>
+            <div className="flex items-center gap-2">
+              <button className="p-2"><UserPlus size={22} className="text-pink-500" />
+              </button>
+              <div className="p-2">
+             <DropdownMenu>
+               <DropdownMenuTrigger
+                className="p-1 rounded hover:bg-muted transition ml-2"
+               >
+                 <Ellipsis size={20} className="text-pink-500" />
+               </DropdownMenuTrigger>
+               <DropdownMenuContent>
+                 <DropdownMenuLabel>...</DropdownMenuLabel>
+                 <DropdownMenuSeparator />
+                 <DropdownMenuItem>
+                   <Link
+                     href={`/playlist/${id}/edit`}
+                     className="flex items-center gap-2 py-2 cursor-pointer hover:text-blue-600"
+                   >
+                    <span className="flex items-center"><Pencil /></span>
+                    <span>Edit Playlist</span>
+                   </Link>                    
+                 </DropdownMenuItem>
+                 <DropdownMenuItem>
+                   <Link
+                     href="/"
+                     className="flex items-center gap-2 py-2 cursor-pointer hover:text-blue-600"
+                   >
+                    <span className="flex items-center"><Trash2 color="red" /></span>
+                    <span>Delete Playlist</span>
+                   </Link>                    
+                 </DropdownMenuItem>
+                 <DropdownMenuSeparator />             
+                 <DropdownMenuItem>
+                   <Button
+                     className="flex items-center gap-2 py-2 cursor-pointer hover:text-blue-600"
+                     onClick={() => {
+                        if (!player || songs.length === 0) return;
+  
+                        const formattedSongs = songs.map((song) => ({
+                          id: song.id,
+                          title: song.title,
+                          artist: song.artists?.name ?? 'Unknown',
+                          album: song.albums?.name ?? 'Unknown',
+                          image: song.cover_url ?? '/img/default-cover.jpg',
+                          src: song.audio_url ? `/audio/${song.audio_url}` : '',
+                          audio_url: song.audio_url ?? ''
+                        }));
+  
+                        player.setQueue(formattedSongs);
+                        player.setCurrentTrack(formattedSongs[0]);
+                        player.setIsPlaying(true);
+                     }}
+                     variant="ghost"
+                   >
+                    <span className="flex items-center bg-blue-600 rounded-full"><PlayCircle /></span>
+                    <span>Play All</span>
+                   </Button>                    
+                 </DropdownMenuItem>             
+               </DropdownMenuContent>
+             </DropdownMenu>             
+              </div>
+            </div>
+          </div>
+         </div>          
+          <div className="min-h-screen px-4 mt-20">
+            {/* Header */}
+            <div className="relative mb-4">
+             <input
+               className="w-full rounded-lg bg-[#f3f4f6] dark:bg-[#232323] py-2 pl-10 pr-10 dark:placeholder-gray-400 focus:outline-none"
+               placeholder="Search"
+               value={search}
+               onChange={e => setSearch(e.target.value)}
+             />
+             <Mic className="absolute right-3 top-1/2 -translate-y-1/2 dark:text-gray-400" size={20} />
+            </div>
+
+            <div className="flex items-center justify-center w-full">
+              <div className="rounded-2xl bg-gradient-to-br from-green-300 via-gray-400 to-purple-500 h-64 w-60 p-4">
+                <h1 className="text-2xl font-bold text-gray-900">{playlist.title}</h1>
+              </div>
+            </div>            
+
+            {/* Owner */}
+            <div className="mt-4">
+              <h1 className="text-center text-xl font-bold">{playlist.title}</h1>
+              <h2 className="text-center text-lg font-semibold text-pink-500">David Jonah</h2>
+            </div>
+
+            {/* Controls */}
+            <div className="flex gap-4 mt-6 mb-4">
+              <button
+               className="flex-1 flex items-center justify-center gap-2 bg-[#f3f4f6] dark:bg-[#181818] rounded-lg py-3 text-pink-500 font-semibold text-lg"
+               onClick={() => {
+                  if (!player || songs.length === 0) return;
+  
+                  const formattedSongs = songs.map((song) => ({
+                    id: song.id,
+                    title: song.title,
+                    artist: song.artists?.name ?? 'Unknown',
+                    album: song.albums?.name ?? 'Unknown',
+                    image: song.cover_url ?? '/img/default-cover.jpg',
+                    src: song.audio_url ? `/audio/${song.audio_url}` : '',
+                    audio_url: song.audio_url ?? ''
+                  }));
+  
+                  player.setQueue(formattedSongs);
+                  player.setCurrentTrack(formattedSongs[0]);
+                  player.setIsPlaying(true);
+               }}         
+              >
+                <Play size={18} />
+                Play
+              </button>
+              <button
+               className={`flex-1 flex items-center justify-center gap-2 bg-[#f3f4f6] dark:bg-[#181818] rounded-lg py-3 text-pink-500 font-semibold text-lg ${player && player.isShuffling ? 'text-pink-700 bg-[#d1d2d4] dark:bg-[#1a1919]' : ''}`}
+               onClick={player ? player.toggleShuffle : undefined}
+              >
+                <Shuffle size={18} />
+                Shuffle
+              </button>
+            </div>
+
+            {/* Songs List */}
+            <div className="mt-6 space-y-4">
+              {songs.map((song) => (
+                <div
+                  key={song.id}
+                  className="flex items-center justify-between rounded-lg"
+                  onClick={() => {
+                    if (!player) return;
+                    // Format the queue from the songs list
+                    const formattedQueue = songs.map((s) => ({
+                      id: s.id,
+                      title: s.title,
+                      artist: s.artists?.name ?? 'Unknown',
+                      image: s.cover_url ?? '/img/default-cover.jpg',
+                      src: s.audio_url ? `/audio/${s.audio_url}` : '',
+                      audio_url: s.audio_url ?? ''
+                    }));
+                    // Find the index of the clicked song in the songs list
+                    const songIdx = songs.findIndex((s) => s.id === song.id);
+                    // Set the queue and current track
+                    player.setQueue(formattedQueue);
+                    player.setCurrentTrack(formattedQueue[songIdx]);
+                    player.setIsPlaying(true);
+                  }}            
+                >
+                  <div className="flex items-center gap-3">
+                    <Image
+                      src={song.cover_url}
+                      alt={song.title}
+                      width={50}
+                      height={50}
+                      className="rounded"
+                    />
+                    <div>
+                      <p className="text-sm font-medium">{song.title}</p>
+                      <p className="text-xs text-gray-400">{song.artists?.name}</p>
+                    </div>
+                  </div>
+                  <MoreHorizontal size={18} className="text-gray-400" />
+                </div>
+              ))}
+            </div>
+          </div>          
+        </div>    
+
+        </div>
       ) : (
-        <p>Loading playlist...</p>
+        <div>Loading playlist...</div>
       )}
-    </div>
+    </>
   );
 }
