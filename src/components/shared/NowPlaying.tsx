@@ -73,9 +73,17 @@ const NowPlaying: React.FC = () => {
         <Button variant="ghost" size="icon">
           <Star className="w-5 h-5 dark:text-gray-200 text-black" />
         </Button>
-        <Button variant="ghost" size="icon">
-          <MoreHorizontal className="w-5 h-5 dark:text-gray-200 text-black" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+           className="p-1 rounded hover:bg-muted transition ml-2"
+          >
+         <MoreHorizontal className="w-5 h-5" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Go To Artist</DropdownMenuItem> 
+            <DropdownMenuItem>Go To Album</DropdownMenuItem>     
+          </DropdownMenuContent>
+        </DropdownMenu> 
       </div>
 
       {/* Progress Bar */}

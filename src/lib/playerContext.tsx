@@ -19,6 +19,8 @@ type Song = {
   // Add other fields as needed
 }
 
+type RepeatMode = 'off' | 'one' | 'all';
+
 interface PlayerContextType {
   audioRef: React.RefObject<HTMLAudioElement | null>;
   isPlaying: boolean;
@@ -71,7 +73,9 @@ interface PlayerContextType {
   }[];  
   shuffleQueue: () => void;
   isShuffling: boolean;
-  toggleShuffle: () => void;  
+  toggleShuffle: () => void; 
+  repeatMode: RepeatMode;
+  toggleRepeat: () => void; 
 }
 
 const PlayerContext = createContext<PlayerContextType | null>(null)
@@ -84,6 +88,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isShuffling, setIsShuffling] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>('off');  
   const [originalQueue, setOriginalQueue] = useState<typeof queue>([]);  
   const [queue, setQueue] = useState<{
     id: string;
@@ -316,6 +321,37 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   // eslint-disable-next-line
   }, [currentIndex, originalQueue]);  
 
+  const toggleRepeat = useCallback(() => {
+    setRepeatMode((prev) => {
+      if (prev === 'off') return 'one';
+      if (prev === 'one') return 'all';
+      return 'off';
+    });
+  }, []); 
+  
+  // Handle repeat logic on audio end
+  useEffect(() => {
+    if (!audioRef.current) return;
+    const handleEnded = () => {
+      if (repeatMode === 'one') {
+        audioRef.current!.currentTime = 0;
+        audioRef.current!.play();
+      } else if (repeatMode === 'all') {
+        if (currentIndex === queue.length - 1) {
+          setCurrentIndex(0);
+          setIsPlaying(true);
+        } else {
+          playNext();
+        }
+      } else {
+        playNext();
+      }
+    };
+    const audio = audioRef.current;
+    audio.addEventListener('ended', handleEnded);
+    return () => audio.removeEventListener('ended', handleEnded);
+  }, [repeatMode, currentIndex, queue.length, playNext]);  
+
   return (
     <PlayerContext.Provider
      value={{
@@ -331,6 +367,8 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
          shuffleQueue,
          isShuffling,
          toggleShuffle,
+         repeatMode,
+         toggleRepeat,
          playNext,
          playPrev,
          isMini,
@@ -347,7 +385,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
      }}>
       {children}
       {currentTrack.src ? (
-        <audio ref={audioRef} src={currentTrack.src} onEnded={playNext} />
+        <audio ref={audioRef} src={currentTrack.src} />
       ) : null}
     </PlayerContext.Provider>
   )

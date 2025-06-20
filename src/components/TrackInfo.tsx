@@ -4,7 +4,7 @@ import { usePlayer } from '@/lib/playerContext'
 import Image from 'next/image'
 import { Timeline } from './Timeline';
 import { Button } from './ui/button';
-import { Repeat, Shuffle } from 'lucide-react';
+import { Repeat, Repeat1, Shuffle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import MiniPlayer from './shared/MiniPlayer';
 
@@ -22,7 +22,7 @@ export const TrackInfo = () => {
     return null;
   }
 
-  const { currentTrack, duration, currentTime } = player;
+  const { currentTrack, duration, currentTime, repeatMode, toggleRepeat  } = player;
 
   return (
     <div className="flex items-center gap-3 max-w-lg w-full p-2">
@@ -71,8 +71,19 @@ export const TrackInfo = () => {
           <span>-{formatTime(duration - currentTime)}</span>
         </div>
       </div>
-      <Button variant="ghost" size="icon">
-        <Repeat className="w-4 h-4" />
+      <Button
+       variant="ghost" size="icon"
+       onClick={toggleRepeat}
+        className={`cursor-pointer transition ${
+          repeatMode !== 'off' ? 'text-pink-500' : ''
+        }`}
+        aria-label="Toggle repeat"       
+      >
+        {repeatMode === 'one' ? (
+          <Repeat1 className="w-4 h-4" />
+        ) : (
+          <Repeat className="w-4 h-4" />
+        )}
       </Button>           
     </div>
   )
