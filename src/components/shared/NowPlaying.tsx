@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { usePlayer } from '@/lib/playerContext';
 import Image from 'next/image';
-import { FastForward, ListOrdered, Shuffle, MoreHorizontal, Pause, Play, Rewind, Star, Waves } from 'lucide-react';
+import { FastForward, ListOrdered, Shuffle, MoreHorizontal, Pause, Play, Rewind, Star, Repeat1, Repeat } from 'lucide-react';
 import { TimeProgress } from '../TimeProgress';
 import { VolBar } from '../VolBar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
@@ -23,7 +23,7 @@ const NowPlaying: React.FC = () => {
     return null;
   }
 
-  const { currentTrack, duration, currentTime } = player;  
+  const { currentTrack, duration, currentTime, repeatMode, toggleRepeat } = player;  
 
   if (!player) return null
   const { isPlaying, togglePlay, playNext, playPrev } = player
@@ -122,7 +122,20 @@ const NowPlaying: React.FC = () => {
          className={`w-5 h-5 cursor-pointer transition ${player.isShuffling ? 'text-pink-500' : ''}`}
          onClick={player.toggleShuffle}
         />
-        <Waves className="w-5 h-5" />
+      <Button
+       variant="ghost" size="icon"
+       onClick={toggleRepeat}
+        className={`cursor-pointer transition ${
+          repeatMode !== 'off' ? 'text-pink-500' : ''
+        }`}
+        aria-label="Toggle repeat"       
+      >
+        {repeatMode === 'one' ? (
+          <Repeat1 className="w-5 h-5" />
+        ) : (
+          <Repeat className="w-5 h-5" />
+        )}
+      </Button>
         <DropdownMenu>
           <DropdownMenuTrigger
            className="p-1 rounded hover:bg-muted transition ml-2"
