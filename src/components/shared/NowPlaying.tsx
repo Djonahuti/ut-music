@@ -83,7 +83,7 @@ const NowPlaying: React.FC = () => {
         <div className="w-full">
         <TimeProgress />
         </div>
-        <div className="w-full flex justify-between text-xs text-gray-600 mt-1">
+        <div className="w-full flex justify-between text-xs dark:text-gray-200 text-black mt-1">
           <span>{formatTime(currentTime)}</span>
           <span className="bg-gray-700 text-white text-[10px] px-2 py-0.5 rounded">Lossless</span>
           <span>-{formatTime(duration - currentTime)}</span>
@@ -93,13 +93,13 @@ const NowPlaying: React.FC = () => {
       {/* Playback Controls */}
       <div className="flex items-center justify-center gap-8 mb-6">
         <Button onClick={playPrev} variant="ghost" size="icon">
-          <Rewind className="w-7 h-7 text-gray-600" />
+          <Rewind className="w-7 h-7 dark:text-gray-200 text-black" />
         </Button>
         <Button onClick={togglePlay} variant="ghost" size="icon">
           {isPlaying ? <Pause className="w-25 h-25" /> : <Play className="w-25 h-25" />}
         </Button>
         <Button onClick={playNext} variant="ghost" size="icon">
-          <FastForward className="w-7 h-7 text-gray-600" />
+          <FastForward className="w-7 h-7 dark:text-gray-200 text-black" />
         </Button>
       </div>
 

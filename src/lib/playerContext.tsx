@@ -206,10 +206,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   }, [isPlaying, currentIndex, playNext, playPrev, togglePlay])  
 
   useEffect(() => {
-    if (currentTrack?.src) {
-      if (!audioRef.current) {
-        audioRef.current = new Audio();
-      }
+    if (currentTrack?.src && audioRef.current) {
       audioRef.current.src = currentTrack.src;
       audioRef.current.load();
 
@@ -265,7 +262,16 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         audioRef.current?.removeEventListener('timeupdate', onTimeUpdate);
       };
     }
-  }, [currentTrack, isPlaying, tracks]);
+  }, [currentTrack, tracks]);
+
+  useEffect(() => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.play();
+    } else {
+      audioRef.current.pause();
+    }
+  }, [isPlaying]);  
 
   const shuffleQueue = useCallback(() => {
     setQueue(prevQueue => {
