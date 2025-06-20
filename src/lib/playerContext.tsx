@@ -196,11 +196,6 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   useEffect(() => {
-    if (!audioRef.current) return
-    audioRef.current.load()
-  }, [currentIndex])
-
-  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') togglePlay()
       else if (e.code === 'ArrowRight') playNext()
