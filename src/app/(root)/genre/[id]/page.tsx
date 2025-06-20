@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Play, MoreHorizontal, ThumbsUp, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { usePlayer } from "@/lib/playerContext";
-import { Card, CardContent } from "../ui/card";
-import { Avatar, AvatarFallback } from "../ui/avatar";
 import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface Genre {
   id: string
@@ -36,66 +36,81 @@ function formatDuration(seconds: number) {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-export function Genre() {
+export default function GenreDetail({ params }: { params: Promise<{ id: string }> }) {
+  const { id: genreId } = React.use(params);    
   const player = usePlayer();
-  const [genres, setGenres] = useState<Genre[]>([]);
-  const [selectedGenre, setSelectedGenre] = useState<Genre | null>(null);
+  const [genre, setGenre] = useState<Genre | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
 
   useEffect(() => {
-    const fetchGenres = async () => {
-      const { data } = await supabase.from("genres").select("*");
-      if (data) setGenres(data);
+    const fetchGenre = async () => {
+      const { data, error } = await supabase
+        .from("genres")
+        .select("*")
+        .eq("id", genreId)
+        .single();
+      if (error) {
+        setError(error.message);
+      } else {
+        setGenre(data);
+      }
     };
-    fetchGenres();
-  }, []);
+    fetchGenre();
+  }, [genreId]);
 
   useEffect(() => {
     const fetchSongs = async () => {
-      if (!selectedGenre) return;
-      const { data } = await supabase
+      if (!genreId) return;
+
+      const { data, error } = await supabase
         .from("songs")
         .select(`*, artists(name), artist_id`)
-        .eq("genre_id", selectedGenre.id)
-        .order("created_at", { ascending: false });
-      if (data) setSongs(data);
+        .eq("genre_id", genreId)
+        .order('track_no', { ascending: true})
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setSongs(
+          (data || []).map((song: any) => ({
+            id: song.id,
+            title: song.title,
+            album_id: song.album_id,
+            artist_id: song.artist_id,
+            artists: song.artists ?? null,
+            plays: song.plays,
+            audio_url: song.audio_url,
+            cover_url: song.cover_url,
+            duration: song.duration,
+            track_no: song.track_no,
+          }))
+        );
+      }
     };
     fetchSongs();
-  }, [selectedGenre]);
+  }, [genreId]);
+
+  if (error) {
+    return <div className="p-4 text-red-500">Failed to load genre: {error}</div>;
+  }
 
   return (
-    <div className="h-screen w-full">
-      <div className="grid grid-cols-12 h-full">
-        {/* Sidebar */}
-        <div className="col-span-2 p-4 space-y-4 overflow-y-auto hidden md:block">
-          <ul className="space-y-2">
-            {genres.map((genre) => (
-              <li
-                key={genre.id}
-                onClick={() => setSelectedGenre(genre)}
-                className={`cursor-pointer hover:bg-blue-800 hover:text-gray-300 rounded-md p-2 ${
-                  selectedGenre?.id === genre.id ? "bg-blue-800 text-gray-300" : ""
-                }`}
-              >
-                <span>{genre.name}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
+    <div className="p-4">
         {/* Main content */}
         <div className="col-span-10 flex flex-col justify-between">
-          <div className="fixed top-3 inset-x-0 z-50 left-3 text-3xl text-bold md:hidden"><Link href="/"><ChevronLeft /></Link></div>
+          <div className="fixed top-3 inset-x-0 z-50 left-3 text-3xl text-bold md:hidden"><Link href="/genres"><ChevronLeft /></Link></div>
           <section className="w-full mx-auto rounded-xl overflow-hidden">
             {/* Header Section */}
             <div className="relative h-60 md:h-80 w-full">
               <div className="w-[140px] h-[140px] rounded-lg shadow bg-gradient-to-br from-gray-200 to-gray-400 flex items-center justify-center">
                 <span className="text-xl font-semibold text-gray-800 text-center px-2">
-                  {selectedGenre?.name || "Select a Genre"}
+                  {genre?.name || "Select a Genre"}
                 </span>
               </div>
               <div className="absolute inset-0 flex flex-col justify-end px-6 pb-6">       
-                <h1 className=" text-4xl md:text-6xl font-bold leading-tight">{selectedGenre?.name || "Select a Genre"}</h1>
+                <h1 className=" text-4xl md:text-6xl font-bold leading-tight">{genre?.name || "Select a Genre"}</h1>
                 <p className="text-sm mt-1">Listen</p>
               </div>
             </div>
@@ -176,7 +191,7 @@ export function Genre() {
             <Card>
               <CardContent className="flex flex-col md:flex-row items-center gap-6 p-6">
                 <Avatar className="w-36 h-36">
-                  <AvatarFallback>{selectedGenre?.name}</AvatarFallback>
+                  <AvatarFallback>{genre?.name}</AvatarFallback>
                 </Avatar>
 
                 <div className="text-center md:text-left">
@@ -184,7 +199,7 @@ export function Genre() {
                     3,590,023 <span className="text-sm font-normal">monthly listeners</span>
                   </p>
                   <p className="mt-2 text-gray-500 leading-relaxed">
-                    {selectedGenre?.description || "Explore music by genre"}
+                    {genre?.description || "Explore music by genre"}
                   </p>
                 </div>
               </CardContent>
@@ -192,7 +207,6 @@ export function Genre() {
           </section>
 
         </div>
-      </div>
     </div>
   );
 }
