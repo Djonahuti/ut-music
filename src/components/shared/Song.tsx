@@ -169,6 +169,24 @@ export function Song() {
              className="border-t group"
              onMouseEnter={() => setHoveredRow(song.id)}
              onMouseLeave={() => setHoveredRow(null)}
+             onClick={() => {
+               if (!player) return;
+               // Format the queue from the filtered list
+               const formattedQueue = filtered.map((s) => ({
+                 id: s.id,
+                 title: s.title,
+                 artist: s.artists?.name ?? 'Unknown',
+                 image: s.cover_url ?? '/img/default-cover.jpg',
+                 src: s.audio_url ? `/audio/${s.audio_url}` : '',
+                 audio_url: s.audio_url ?? ''
+               }));
+               // Find the index of the clicked song in the filtered list
+               const songIdx = filtered.findIndex((s) => s.id === song.id);
+               // Set the queue and current track
+               player.setQueue(formattedQueue);
+               player.setCurrentTrack(formattedQueue[songIdx]);
+               player.setIsPlaying(true);
+             }}             
             >
               <TableCell>
                 <Image
@@ -316,7 +334,28 @@ export function Song() {
           <div key={letter}>
             <div className="px-4 py-2 text-pink-500 font-bold text-lg">{letter}</div>
             {groupedSongs[letter].map(song => (
-              <div key={song.id} className="flex items-center px-4 py-2 hover:bg-[#232323] transition group">
+              <div
+               key={song.id} 
+               className="flex items-center px-4 py-2 hover:bg-[#232323] transition group"
+               onClick={() => {
+                 if (!player) return;
+                 // Format the queue from the filtered list
+                 const formattedQueue = filtered.map((s) => ({
+                   id: s.id,
+                   title: s.title,
+                   artist: s.artists?.name ?? 'Unknown',
+                   image: s.cover_url ?? '/img/default-cover.jpg',
+                   src: s.audio_url ? `/audio/${s.audio_url}` : '',
+                   audio_url: s.audio_url ?? ''
+                 }));
+                 // Find the index of the clicked song in the filtered list
+                 const songIdx = filtered.findIndex((s) => s.id === song.id);
+                 // Set the queue and current track
+                 player.setQueue(formattedQueue);
+                 player.setCurrentTrack(formattedQueue[songIdx]);
+                 player.setIsPlaying(true);
+               }}               
+              >
                 <Image
                   src={song.cover_url}
                   alt="cover"
