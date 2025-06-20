@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { usePlayer } from '@/lib/playerContext';
 import Image from 'next/image';
-import { FastForward, ListOrdered, MessageSquareText, MoreHorizontal, Pause, Play, Rewind, Star, Waves } from 'lucide-react';
+import { FastForward, ListOrdered, Shuffle, MoreHorizontal, Pause, Play, Rewind, Star, Waves } from 'lucide-react';
 import { TimeProgress } from '../TimeProgress';
 import { VolBar } from '../VolBar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
@@ -110,7 +110,7 @@ const NowPlaying: React.FC = () => {
 
       {/* Bottom Icons */}
       <div className="flex justify-between items-center w-full max-w-md px-4 text-gray-600">
-        <MessageSquareText className="w-5 h-5" />
+        <Shuffle className="w-5 h-5" />
         <Waves className="w-5 h-5" />
         <DropdownMenu>
           <DropdownMenuTrigger
