@@ -146,7 +146,13 @@ const NowPlaying: React.FC = () => {
 })
         ) : (
           <DropdownMenuItem className="text-muted-foreground">Queue is empty</DropdownMenuItem>
-        )}            
+        )}       
+            <DropdownMenuItem
+             className="text-red-500 flex items-center justify-center"
+             onClick={() => player.setQueue([])}
+            >
+              Clear
+            </DropdownMenuItem>     
           </DropdownMenuContent>
         </DropdownMenu> 
       </div>

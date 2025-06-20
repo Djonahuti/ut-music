@@ -101,7 +101,13 @@ useEffect(() => {
 })
         ) : (
           <DropdownMenuItem className="text-muted-foreground">Queue is empty</DropdownMenuItem>
-        )}            
+        )}     
+            <DropdownMenuItem
+             className="text-red-500 flex items-center justify-center"
+             onClick={() => player && player.setQueue([])}
+            >
+              Clear
+            </DropdownMenuItem>               
           </DropdownMenuContent>
         </DropdownMenu>     
         <div className="flex items-center border rounded-md px-2">
