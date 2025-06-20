@@ -69,12 +69,12 @@ const NowPlaying: React.FC = () => {
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-center gap-4 mb-4">
+      <div className="w-full flex justify-between mb-4">
         <Button variant="ghost" size="icon">
-          <Star className="w-5 h-5 text-gray-600" />
+          <Star className="w-5 h-5 dark:text-gray-200 text-black" />
         </Button>
         <Button variant="ghost" size="icon">
-          <MoreHorizontal className="w-5 h-5 text-gray-600" />
+          <MoreHorizontal className="w-5 h-5 dark:text-gray-200 text-black" />
         </Button>
       </div>
 
