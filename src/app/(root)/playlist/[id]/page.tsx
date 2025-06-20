@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 import Link from "next/link";
-import { Ellipsis, Mic, MoreHorizontal, Pencil, Play, PlayCircle, Shuffle, Trash2, UserPlus } from "lucide-react";
+import { Ellipsis, Mic, MoreHorizontal, Pencil, Play, PlayCircle, Plus, Shuffle, Trash2, UserPlus } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { usePlayer } from "@/lib/playerContext";
 import { Button } from "@/components/ui/button";
@@ -409,6 +409,17 @@ export default function PlaylistDetailPage() {
                   <MoreHorizontal size={18} className="text-gray-400" />
                 </div>
               ))}
+                <div>
+                  <div className="flex items-center gap-3">
+                    <button className="bg-gray-600 p-2"><Plus /></button>
+                    <div>
+                      <p className="text-md font-semibold">Add Music</p>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-500 mt-4 mb-2">
+                    {songs.length}  Songs, {totalMinutes} hrs {totalSeconds} min
+                  </div>
+                </div>              
             </div>
           </div>          
         </div>    
