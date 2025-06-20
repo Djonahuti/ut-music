@@ -24,6 +24,7 @@ interface PlayerContextType {
   isPlaying: boolean;
   togglePlay: () => void;
   currentTrack: {
+    id: string;
     title: string;
     artist: string;
     image: string;

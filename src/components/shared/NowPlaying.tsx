@@ -122,10 +122,15 @@ const NowPlaying: React.FC = () => {
             <DropdownMenuLabel>Up Next</DropdownMenuLabel>
             <DropdownMenuSeparator />             
         {player?.queue && player.queue.length > 0 ? (
-          player.queue.map((track, idx) => (
+          player.queue.map((track, idx) => {
+           const isCurrent = player.currentTrack?.id === track.id;
+           return (
            <React.Fragment key={track.id + '-' + idx}>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="flex items-center gap-2">
+            <DropdownMenuItem
+             className={`flex items-center gap-2 cursor-pointer ${isCurrent ? 'bg-accent text-accent-foreground' : ''}`}
+             onClick={() => player.setCurrentTrack(track)}
+            >
               <img
                 src={track.image}
                 alt={track.title}
@@ -137,7 +142,8 @@ const NowPlaying: React.FC = () => {
               </div>
             </DropdownMenuItem>
             </React.Fragment>
-          ))
+          );
+})
         ) : (
           <DropdownMenuItem className="text-muted-foreground">Queue is empty</DropdownMenuItem>
         )}            
