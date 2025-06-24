@@ -106,6 +106,47 @@ export function Song() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const handlePlayNext = (song: Song) => {
+    if (!player) return;
+    const formattedSong = {
+      id: song.id,
+      title: song.title,
+      artist: song.artists?.name ?? 'Unknown',
+      image: song.cover_url ?? '/img/default-cover.jpg',
+      src: song.audio_url ? `/audio/${song.audio_url}` : '',
+      audio_url: song.audio_url ?? ''
+    };
+    player.setQueue((prevQueue) => {
+      // Remove if already in queue
+      const filtered = prevQueue.filter((s) => s.id !== song.id);
+      // Insert after current track
+      const insertIdx = player.queue.findIndex((s) => s.id === player.currentTrack.id) + 1;
+      return [
+        ...filtered.slice(0, insertIdx),
+        formattedSong,
+        ...filtered.slice(insertIdx)
+      ];
+    });
+  };
+
+  const handlePlayLater = (song: Song) => {
+    if (!player) return;
+    const formattedSong = {
+      id: song.id,
+      title: song.title,
+      artist: song.artists?.name ?? 'Unknown',
+      image: song.cover_url ?? '/img/default-cover.jpg',
+      src: song.audio_url ? `/audio/${song.audio_url}` : '',
+      audio_url: song.audio_url ?? ''
+    };
+    player.setQueue((prevQueue) => {
+      // Remove if already in queue
+      const filtered = prevQueue.filter((s) => s.id !== song.id);
+      // Add to end
+      return [...filtered, formattedSong];
+    });
+  };  
+
   return (
    <div className="space-y-4">
       {/* Desktop UI */}    
@@ -247,8 +288,8 @@ export function Song() {
                               </DropdownMenuSubContent>
                             </DropdownMenuPortal>
                           </DropdownMenuSub>
-                          <DropdownMenuItem onClick={() => {/* handle minus from */}}>Play Next</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => {/* handle minus from */}}>Play Later</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handlePlayNext(song)}>Play Next</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handlePlayLater(song)}>Play Later</DropdownMenuItem>
                         </DropdownMenuGroup>
                       </DropdownMenuContent>
                     </DropdownMenu>
