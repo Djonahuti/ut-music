@@ -1,10 +1,28 @@
+"use client"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ReactNode } from "react";
 import { AppSidebar } from "./sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { usePathname } from "next/navigation";
+
+function getPageTitle(pathname: string) {
+  // Example mapping, extend as needed
+  const map: Record<string, string> = {
+    "/admin/dashboard": "Dashboard",
+    "/admin/users": "Users",
+    "/admin/songs": "Songs",
+    "/admin/artists": "Artists",
+    "/admin/albums": "Albums",
+    "/admin/genres": "Genres",
+  };
+  return map[pathname] || "Page";
+}
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const pageTitle = getPageTitle(pathname ?? "");
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -21,7 +39,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Location</BreadcrumbPage>
+                <BreadcrumbPage>{pageTitle}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
