@@ -3,11 +3,12 @@ import { supabase } from "@/lib/supabase";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ChevronLeft, MoreHorizontal, Play, ThumbsUp } from "lucide-react";
+import { CheckCircle, ChevronLeft, MoreHorizontal, Play, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePlayer } from "@/lib/playerContext";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import { useAuth } from "@/lib/AuthContext";
 
 interface Song {
   id: string;
@@ -40,10 +41,13 @@ function formatDuration(seconds: number) {
 
 export default function AlbumDetails({ params }: { params: Promise<{ albumId: string }> }) {
   const player = usePlayer();
+  const session = useAuth();
   const [album, setAlbum] = useState<Album | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
   const [error, setError] = useState<string | null>(null);
   const { albumId } = React.use(params);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [loadingFavorite, setLoadingFavorite] = useState(false);    
 
   useEffect(() => {
     const fetchAlbum = async () => {
@@ -83,6 +87,30 @@ export default function AlbumDetails({ params }: { params: Promise<{ albumId: st
   if (error) {
     return <div className="p-4 text-red-500">Failed to load album: {error}</div>;
   }
+
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!session?.user?.id || !albumId) return;
+      const { data } = await supabase
+        .from("favorite_album")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .eq("album_id", albumId)
+        .single();
+      setIsFavorite(!!data);
+    };
+    checkFavorite();
+  }, [session, albumId]);
+
+  const handleFavorite = async () => {
+    if (!session?.user?.id || !albumId) return;
+    setLoadingFavorite(true);
+    const { error } = await supabase
+      .from("favorite_album")
+      .insert([{ user_id: session.user.id, album_id: albumId }]);
+    if (!error) setIsFavorite(true);
+    setLoadingFavorite(false);
+  };    
 
   return (
     <div className="p-4">
@@ -148,8 +176,10 @@ export default function AlbumDetails({ params }: { params: Promise<{ albumId: st
                     <Button
                       variant="outline"
                       className="rounded-full border-white hover:bg-white hover:text-black"
+                      disabled={isFavorite || loadingFavorite}
+                      onClick={handleFavorite}                      
                     >
-                      <ThumbsUp />
+                      {isFavorite ? <ThumbsDown /> : loadingFavorite ? "Loading..." : <ThumbsUp />}
                     </Button>
 
                     <Button
