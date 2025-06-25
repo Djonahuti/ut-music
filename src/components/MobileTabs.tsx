@@ -11,7 +11,7 @@ export default function MobileTabs() {
     { icon: <IconCompassFilled />, label: "Explore", href: "/artists" },
     { icon: <IconLibrary />, label: "Library", href: "/albums" },
     { icon: <IconSearch />, label: "Search", href: "/genres" },
-    { icon: <IconUser />, label: "User", href: "/account" },
+    { icon: <IconUser />, label: "User", href: "/profile" },
   ];
 
   return (
