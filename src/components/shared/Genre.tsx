@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Play, MoreHorizontal, ThumbsUp, ChevronLeft } from "lucide-react";
+import { Play, MoreHorizontal, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
@@ -123,13 +123,6 @@ export function Genre() {
                  }}            
                 >
                   <Play className="mr-2" size={20} /> Play
-                </Button>
-
-                <Button
-                  variant="outline"
-                  className="rounded-full border-white hover:bg-white hover:text-black"
-                >
-                  <ThumbsUp />
                 </Button>
 
                 <Button
