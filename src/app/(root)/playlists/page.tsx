@@ -1,5 +1,4 @@
 import ViewPlaylists from "@/components/shared/ViewPlaylists";
-import { AuthProvider } from "@/lib/AuthContext";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -11,9 +10,7 @@ export default function PlaylistsPage() {
         <h1 className="text-xl font-semibold mb-2">Playlists</h1>
       </div>      
       <h1 className="text-xl font-semibold mb-4 hidden md:block">Playlists</h1>
-      <AuthProvider>
-        <ViewPlaylists />
-      </AuthProvider>      
+        <ViewPlaylists />    
     </div>
   );
 }

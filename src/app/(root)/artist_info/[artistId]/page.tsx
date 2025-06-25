@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePlayer } from "@/lib/playerContext";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import { useAuth } from "@/lib/AuthContext";
 
 interface Artist {
   id: string
@@ -38,6 +39,9 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
   const [songs, setSongs] = useState<Song[]>([]);
   const [error, setError] = useState<string | null>(null);
   const { artistId } = React.use(params);
+  const session = useAuth();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [loadingFollow, setLoadingFollow] = useState(false);  
 
   useEffect(() => {
     const fetchArtistAndSongs = async () => {
@@ -73,6 +77,30 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
   if (error) {
     return <div className="p-4 text-red-500">Failed to load artist: {error}</div>;
   }
+
+  useEffect(() => {
+    const checkFollowing = async () => {
+      if (!session?.user?.id || !artistId) return;
+      const { data } = await supabase
+        .from("following")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .eq("artist_id", artistId)
+        .single();
+      setIsFollowing(!!data);
+    };
+    checkFollowing();
+  }, [session, artistId]);
+
+  const handleFollow = async () => {
+    if (!session?.user?.id || !artistId) return;
+    setLoadingFollow(true);
+    const { error } = await supabase
+      .from("following")
+      .insert([{ user_id: session.user.id, artist_id: artistId }]);
+    if (!error) setIsFollowing(true);
+    setLoadingFollow(false);
+  };  
 
   return (
     <div className="p-4">
@@ -137,8 +165,10 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
                     <Button
                       variant="outline"
                       className="rounded-full border-white hover:bg-white hover:text-black"
+                      disabled={isFollowing || loadingFollow}
+                      onClick={handleFollow}
                     >
-                      Follow
+                      {isFollowing ? "Following" : loadingFollow ? "Following..." : "Follow"}
                     </Button>
 
                     <Button

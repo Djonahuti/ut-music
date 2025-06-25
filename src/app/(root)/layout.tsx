@@ -2,6 +2,7 @@
 import { PlayerProvider } from '@/lib/playerContext'
 import ResponsiveLayout from '@/components/ResponsiveLayout'
 import { Toaster } from 'sonner'
+import { AuthProvider } from '@/lib/AuthContext'
 
 
 export default function RootLayout({
@@ -13,7 +14,9 @@ export default function RootLayout({
   return (
           <PlayerProvider>
             <ResponsiveLayout>
+             <AuthProvider>
               {children}
+             </AuthProvider> 
               <Toaster />
             </ResponsiveLayout>
           </PlayerProvider>

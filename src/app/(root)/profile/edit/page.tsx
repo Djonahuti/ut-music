@@ -1,7 +1,6 @@
 "use client"
 
 import EditProfilePage from "@/components/shared/EditProfilePage"
-import { AuthProvider } from "@/lib/AuthContext"
 import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 
@@ -14,9 +13,7 @@ export default function EditProfile() {
         <div className="fixed top-3 inset-x-0 z-50 left-3 text-3xl text-bold"><Link href="/profile"><ChevronLeft /></Link></div>
         <h1 className="text-xl font-semibold mb-2">Profile</h1>
       </div>
-      <AuthProvider>
-        <EditProfilePage />
-      </AuthProvider>      
+        <EditProfilePage />     
     </div>
   )
 }
