@@ -45,6 +45,8 @@ export function Song() {
   const [creatingPlaylist, setCreatingPlaylist] = useState(false);
   const [newPlaylistTitle, setNewPlaylistTitle] = useState("");
   const [scrolled, setScrolled] = useState(false);
+  const [isLiked, setIsLiked] = useState<Record<string, boolean>>({});
+  const [loadingLike, setLoadingLike] = useState<Record<string, boolean>>({});
 
   const fetchSongs = async () => {
     const { data } = await supabase
@@ -146,6 +148,62 @@ export function Song() {
       return [...filtered, formattedSong];
     });
   };  
+
+  useEffect(() => {
+    const checkLiked = async () => {
+      if (!user || !user.user || songs.length === 0) return;
+      const songIds = songs.map(s => s.id);
+      const { data, error } = await supabase
+        .from("likes")
+        .select("song_id")
+        .eq("user_id", user.user.id)
+        .in("song_id", songIds);
+
+      const likedMap: Record<string, boolean> = {};
+      if (data) {
+        data.forEach((like: { song_id: string }) => {
+          likedMap[like.song_id] = true;
+        });
+      }  
+      setIsLiked(likedMap);  
+    };
+    checkLiked();
+  }, [user, songs]);
+
+  const toggleLike = async (songId: string) => {
+    if (!user || !user.user) return;
+    setLoadingLike(prev => ({ ...prev, [songId]: true }));
+
+    const liked = isLiked[songId];
+    let error = null;
+
+    if (liked) {
+      // Remove like
+      const { error: delError } = await supabase
+        .from("likes")
+        .delete()
+        .eq("user_id", user.user.id)
+        .eq("song_id", songId);
+      error = delError;
+    } else {
+      // Add like
+      const { error: upsertError } = await supabase
+        .from("likes")
+        .upsert({
+          user_id: user.user.id,
+          song_id: songId
+        }, { onConflict: 'user_id,song_id' });
+      error = upsertError;
+    }
+
+    if (error) {
+      toast.error("Failed to update like");
+    } else {
+      setIsLiked(prev => ({ ...prev, [songId]: !liked }));
+      toast.success(liked ? "Removed from likes" : "Added to likes");
+    }
+    setLoadingLike(prev => ({ ...prev, [songId]: false }));
+  };
 
   return (
    <div className="space-y-4">
@@ -256,7 +314,17 @@ export function Song() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuGroup>
-                          <DropdownMenuItem onClick={() => {/* handle minus from */}}>Add to Favorite</DropdownMenuItem>
+                          <DropdownMenuItem
+                           onClick={() => toggleLike(song.id)}
+                           disabled={loadingLike[song.id]}
+                          >
+                            {loadingLike[song.id]
+                              ? "Loading..."
+                              : isLiked[song.id]
+                                ? "Remove from Favorite"
+                                : "Add to Favorite"
+                            }
+                          </DropdownMenuItem>
                           <DropdownMenuSub>
                             <DropdownMenuSubTrigger>Add to Playlist</DropdownMenuSubTrigger>
                             <DropdownMenuPortal>
@@ -408,9 +476,63 @@ export function Song() {
                   <div className="font-medium truncate">{song.title}</div>
                   <div className="text-gray-400 text-sm truncate">{song.artists.name}</div>
                 </div>
-                <button className="ml-2 p-2 rounded-full hover:bg-[#181818] transition">
-                  <Ellipsis size={22} className="text-gray-300" />
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="ml-2 p-2 rounded-full hover:bg-[#181818] transition">
+                   <Ellipsis size={22} className="text-gray-300" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                    align="start"
+                    sideOffset={4}
+                  >
+                   <DropdownMenuGroup>
+                     <DropdownMenuItem
+                      onClick={() => toggleLike(song.id)}
+                      disabled={loadingLike[song.id]}
+                     >
+                       {loadingLike[song.id]
+                         ? "Loading..."
+                         : isLiked[song.id]
+                           ? "Remove from Favorite"
+                           : "Add to Favorite"
+                       }
+                     </DropdownMenuItem>
+                     <DropdownMenuSub>
+                       <DropdownMenuSubTrigger>Add to Playlist</DropdownMenuSubTrigger>
+                       <DropdownMenuPortal>
+                         <DropdownMenuSubContent>
+                           {playlists.map((p) => (
+                             <DropdownMenuItem key={p.id} onClick={() => handleAddToPlaylist(p.id, song.id)}>
+                               {p.title}
+                             </DropdownMenuItem>
+                           ))}
+                           <DropdownMenuSeparator />
+                           {creatingPlaylist ? (
+                             <div className="flex items-center gap-2 px-2">
+                               <input
+                                 type="text"
+                                 className="border rounded p-1 text-sm w-full"
+                                 value={newPlaylistTitle}
+                                 onChange={(e) => setNewPlaylistTitle(e.target.value)}
+                                 placeholder="New Playlist"
+                               />
+                               <button onClick={handleCreatePlaylist} className="text-xs text-blue-500">Add</button>
+                             </div>
+                           ) : (
+                             <DropdownMenuItem onClick={() => setCreatingPlaylist(true)}>
+                               + Create New Playlist
+                             </DropdownMenuItem>
+                           )}
+                           <DropdownMenuSeparator />
+                           <DropdownMenuItem>More...</DropdownMenuItem>
+                         </DropdownMenuSubContent>
+                       </DropdownMenuPortal>
+                     </DropdownMenuSub>
+                     <DropdownMenuItem onClick={() => handlePlayNext(song)}>Play Next</DropdownMenuItem>
+                     <DropdownMenuItem onClick={() => handlePlayLater(song)}>Play Later</DropdownMenuItem>
+                   </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ))}
           </div>
