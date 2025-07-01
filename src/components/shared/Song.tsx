@@ -211,43 +211,30 @@ export function Song() {
     <div className="hidden md:block">
       <div className="flex justify-between items-center">
         <Input placeholder="Search songs..." value={search} onChange={(e) => setSearch(e.target.value)} />
-         <DropdownMenu>
-           <DropdownMenuTrigger
-            className="p-1 rounded hover:bg-muted transition ml-2"
-           >
-             <Ellipsis size={20} color="blue" />
-           </DropdownMenuTrigger>
-           <DropdownMenuContent>
-             <DropdownMenuLabel>...</DropdownMenuLabel>
-             <DropdownMenuSeparator />             
-             <DropdownMenuItem>
-               <Button
-                 className="flex items-center gap-2 py-2 cursor-pointer hover:text-blue-600"
-                 onClick={() => {
-                    if (!player || songs.length === 0) return;
+        <Button
+          className="flex items-center gap-2 py-2 cursor-pointer"
+          onClick={() => {
+             if (!player || songs.length === 0) return;
   
-                    const formattedSongs = songs.map((song) => ({
-                      id: song.id,
-                      title: song.title,
-                      artist: song.artists?.name ?? 'Unknown',
-                      album: song.albums?.name ?? 'Unknown',
-                      image: song.cover_url ?? '/img/default-cover.jpg',
-                      src: song.audio_url ? `/audio/${song.audio_url}` : '',
-                      audio_url: song.audio_url ?? ''
-                    }));
+             const formattedSongs = songs.map((song) => ({
+               id: song.id,
+               title: song.title,
+               artist: song.artists?.name ?? 'Unknown',
+               album: song.albums?.name ?? 'Unknown',
+               image: song.cover_url ?? '/img/default-cover.jpg',
+               src: song.audio_url ? `/audio/${song.audio_url}` : '',
+               audio_url: song.audio_url ?? ''
+             }));
   
-                    player.setQueue(formattedSongs);
-                    player.setCurrentTrack(formattedSongs[0]);
-                    player.setIsPlaying(true);
-                 }}
-                 variant="ghost"
-               >
-                <span className="flex items-center bg-blue-600 rounded-full"><PlayCircle /></span>
-                <span>Play All</span>
-               </Button>                    
-             </DropdownMenuItem>             
-           </DropdownMenuContent>
-         </DropdownMenu>         
+             player.setQueue(formattedSongs);
+             player.setCurrentTrack(formattedSongs[0]);
+             player.setIsPlaying(true);
+          }}
+          variant="ghost"
+        >
+         <span className="flex items-center bg-blue-600 rounded-full text-2xl"><PlayCircle /></span>
+         <span className="hover:text-blue-600">Play All</span>
+        </Button>        
       </div>
       <Table className="w-full text-left">
         <TableHeader>

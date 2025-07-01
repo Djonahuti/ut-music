@@ -1,6 +1,6 @@
 "use client";
 
-import { ListOrdered, LogOutIcon, Search, UserCircle } from "lucide-react";
+import { List, LogOutIcon, Search, UserCircle } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Input } from "./ui/input";
 import Link from "next/link";
@@ -14,7 +14,6 @@ import { TrackInfo } from "./TrackInfo";
 import { PlayerControls } from "./Controls";
 //import { Timeline } from "./Timeline";
 import { Volume } from "./Volume";
-import { Button } from "./ui/button";
 
 export default function Topbar() {
   const [user, setUser] = useState<User | null>(null);
@@ -71,7 +70,7 @@ useEffect(() => {
           <DropdownMenuTrigger
            className="p-1 rounded hover:bg-muted transition ml-2"
           >
-         <ListOrdered className="w-5 h-5" />
+         <List className="w-5 h-5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuLabel>Up Next</DropdownMenuLabel>
