@@ -121,14 +121,17 @@ export function Song() {
     player.setQueue((prevQueue) => {
       // Remove if already in queue
       const filtered = prevQueue.filter((s) => s.id !== song.id);
+      // Find current track index
+      const currentIdx = filtered.findIndex((s) => s.id === player.currentTrack.id);
       // Insert after current track
-      const insertIdx = player.queue.findIndex((s) => s.id === player.currentTrack.id) + 1;
+      const insertIdx = currentIdx === -1 ? 0 : currentIdx + 1;
       return [
         ...filtered.slice(0, insertIdx),
         formattedSong,
         ...filtered.slice(insertIdx)
       ];
     });
+    toast.success("Song added to play next!");
   };
 
   const handlePlayLater = (song: Song) => {
@@ -299,7 +302,10 @@ export function Song() {
                           <Ellipsis size={20} />
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent
+                       align="end"
+                       onClick={e => e.stopPropagation()}
+                      >
                         <DropdownMenuGroup>
                           <DropdownMenuItem
                            onClick={() => toggleLike(song.id)}
@@ -465,12 +471,15 @@ export function Song() {
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="ml-2 p-2 rounded-full hover:bg-[#181818] transition">
-                   <Ellipsis size={22} className="text-gray-300" />
+                   <Ellipsis size={22} className="text-gray-300" 
+                    onClick={e => e.stopPropagation()}
+                   />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
                     align="start"
                     sideOffset={4}
+                    onClick={e => e.stopPropagation()}
                   >
                    <DropdownMenuGroup>
                      <DropdownMenuItem

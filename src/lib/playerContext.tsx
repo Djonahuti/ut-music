@@ -350,7 +350,18 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
     const audio = audioRef.current;
     audio.addEventListener('ended', handleEnded);
     return () => audio.removeEventListener('ended', handleEnded);
-  }, [repeatMode, currentIndex, queue.length, playNext]);  
+  }, [repeatMode, currentIndex, queue.length, playNext]); 
+  
+  useEffect(() => {
+    // When queue changes, keep currentIndex pointing to the currentTrack.id
+    setCurrentIndex(prevIdx => {
+      if (!queue.length) return 0;
+      // Try to find the current track in the new queue
+      const currentId = queue[prevIdx]?.id;
+      const idx = queue.findIndex(t => t.id === currentId);
+      return idx === -1 ? 0 : idx;
+    });
+  }, [queue]);  
 
   return (
     <PlayerContext.Provider
