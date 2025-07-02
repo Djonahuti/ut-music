@@ -9,6 +9,8 @@ import { useAuth } from "@/lib/AuthContext"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 import { Button } from "../ui/button"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 interface UserProfile {
   id: string
@@ -24,15 +26,27 @@ interface Playlist {
   description: string | null
 }
 
+// Dummy data and handler for favourite artists
+interface Following {
+  id: string
+  artist_id: string
+  artists: {
+  name: string
+  image_url: string}
+}
+
 export default function ProfilePage() {
+  const router = useRouter();
   const { user, loading: authLoading } = useAuth()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [playlists, setPlaylists] = useState<Playlist[]>([])
   const [loading, setLoading] = useState(true)
+  const [following, setFollowing] = useState<Following[]>([])
 
   useEffect(() => {
-    const fetchProfileAndPlaylists = async () => {
+    const fetchAll = async () => {
       if (!user) return
+
       const { data: userData } = await supabase
         .from("users")
         .select("id, fullName, email, avatar_url")
@@ -45,12 +59,22 @@ export default function ProfilePage() {
         .eq("user_id", user.id)
         .eq("is_public", true)
 
+      const { data: followingData } = await supabase
+        .from("following")
+        .select(`id, artist_id, artists(name, image_url)`)
+        .eq("user_id", user.id)
+
       setProfile(userData)
       setPlaylists(playlistData || [])
+      setFollowing(
+        (followingData || []).map((item: any) => ({
+          ...item,
+          artists: Array.isArray(item.artists) ? item.artists[0] : item.artists,
+        }))
+      )
       setLoading(false)
     }
-
-    if (user) fetchProfileAndPlaylists()
+    if (user) fetchAll()
   }, [user])
 
   if (authLoading || loading || !profile) {
@@ -68,6 +92,10 @@ export default function ProfilePage() {
     )
   }
 
+function handleArtistClick(artistId: string) {
+  router.push(`/artist_info/${artistId}`);
+  toast.success('Navigating to artist details');
+}
   return (
     <div className="p-6 space-y-6">
       {/* Profile Info */}
@@ -121,6 +149,27 @@ export default function ProfilePage() {
           <p className="text-muted-foreground">You have no public playlists.</p>
         )}
       </div>
+
+      {/* Favourite Artists */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Favourite Artists</h2>
+      <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+        {following.map((following) => (
+          <div
+           key={following.id}
+           onClick={() => handleArtistClick(following.artist_id)} 
+           className="flex flex-col items-center p-2 rounded-lg hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
+          >
+            <Avatar className="w-24 h-24 mb-2 rounded-full overflow-hidden">
+              <AvatarImage src={following.artists.image_url} alt={following.artists.name} className="object-cover w-full h-full" />
+              <AvatarFallback className="bg-gray-700 text-white text-xl">{following.artists.name.substring(0, 2)}</AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-medium text-center">{following.artists.name}</span>
+          </div>
+        ))}
+      </section>
+      </div>
     </div>
   )
 }
+
