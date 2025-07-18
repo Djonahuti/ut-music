@@ -28,6 +28,12 @@ interface Song {
   audio_url: string;
 }
 
+interface Playlist {
+  id: string;
+  title: string;
+  description?: string;
+}
+
 function formatDuration(seconds: number) {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
@@ -41,7 +47,7 @@ export function Song() {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);   
   const user = useAuth();
-  const [playlists, setPlaylists] = useState<any[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [creatingPlaylist, setCreatingPlaylist] = useState(false);
   const [newPlaylistTitle, setNewPlaylistTitle] = useState("");
   const [scrolled, setScrolled] = useState(false);
@@ -74,7 +80,7 @@ export function Song() {
     try {
       await addSongToPlaylist(playlistId, songId);
       toast.success("Song added to playlist");
-    } catch (err) {
+    } catch {
       toast.error("Failed to add song");
     }
   };
@@ -87,7 +93,7 @@ export function Song() {
       setCreatingPlaylist(false);
       setNewPlaylistTitle("");
       toast.success("Playlist created");
-    } catch (err) {
+    } catch {
       toast.error("Failed to create playlist");
     }
   };
@@ -156,7 +162,7 @@ export function Song() {
     const checkLiked = async () => {
       if (!user || !user.user || songs.length === 0) return;
       const songIds = songs.map(s => s.id);
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("likes")
         .select("song_id")
         .eq("user_id", user.user.id)
