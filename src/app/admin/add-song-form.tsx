@@ -56,7 +56,7 @@ export function AddSongForm({ onAdded }: { onAdded: () => void }) {
         URL.revokeObjectURL(url)
         resolve(duration)
       })
-      audio.addEventListener("error", (_e) => {
+      audio.addEventListener("error", () => {
         URL.revokeObjectURL(url)
         reject(new Error("Failed to load audio file"))
       })
