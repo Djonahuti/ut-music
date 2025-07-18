@@ -73,20 +73,7 @@ export default function GenreDetail({ params }: { params: Promise<{ id: string }
       if (error) {
         setError(error.message);
       } else {
-        setSongs(
-          (data || []).map((song: any) => ({
-            id: song.id,
-            title: song.title,
-            album_id: song.album_id,
-            artist_id: song.artist_id,
-            artists: song.artists ?? null,
-            plays: song.plays,
-            audio_url: song.audio_url,
-            cover_url: song.cover_url,
-            duration: song.duration,
-            track_no: song.track_no,
-          }))
-        );
+        setSongs(data || []);
       }
     };
     fetchSongs();
