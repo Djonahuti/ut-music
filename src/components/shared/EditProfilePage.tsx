@@ -44,7 +44,7 @@ export default function EditProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("users")
         .select("fullName, avatar_url")
         .eq("id", user.id)
@@ -106,6 +106,11 @@ export default function EditProfilePage() {
 
   if (authLoading || loading) {
     return <p className="p-6">Loading...</p>
+  }
+
+  if (avatarFile) {
+    const avatarUrl = URL.createObjectURL(avatarFile)
+    form.setValue("avatar_url", avatarUrl)
   }
 
   return (

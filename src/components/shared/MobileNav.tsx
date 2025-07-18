@@ -159,22 +159,3 @@ useEffect(() => {
     </nav>
   );
 }
-
-type NavItemProps = {
-  icon: React.ReactNode;
-  label: string;
-};
-
-function NavItem({ icon, label }: NavItemProps) {
-  return (
-    <li>
-      <button
-        className="flex items-center w-full py-4 px-2 text-left hover:bg-gray-50 focus:outline-none transition"
-      >
-        <span className="mr-4">{icon}</span>
-        <span className="flex-1 font-medium text-gray-900">{label}</span>
-        <span className="ml-auto text-gray-400">&gt;</span>
-      </button>
-    </li>
-  );
-}
