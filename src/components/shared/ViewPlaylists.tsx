@@ -5,10 +5,16 @@ import { fetchUserPlaylists } from "@/lib/actions";
 import { useAuth } from "@/lib/AuthContext";
 import { useRouter } from "next/navigation";
 
+interface Playlist {
+  id: string;
+  title: string;
+  description?: string;
+}
+
 export default function ViewPlaylists() {
   const user = useAuth();
   const router = useRouter();  
-  const [playlists, setPlaylists] = useState<any[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
 
   useEffect(() => {
     if (user && user.user && user.user.id) {
