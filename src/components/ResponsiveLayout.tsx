@@ -29,7 +29,9 @@ export default function ResponsiveLayout({ children }: { children: ReactNode }) 
        {!isMobile && <Sidebar />}
        <main className="flex-1 overflow-y-auto px-4 pb-24 mb-15">{children}</main>
      </div>
-     {isMobile && <MobileTabs />}
+     <div className="md:hidden">
+        <MobileTabs />
+     </div>
      </div>
     </>
 );
