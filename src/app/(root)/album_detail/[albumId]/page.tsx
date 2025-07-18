@@ -84,10 +84,6 @@ export default function AlbumDetails({ params }: { params: Promise<{ albumId: st
     fetchSongs();
   }, [albumId]);
 
-  if (error) {
-    return <div className="p-4 text-red-500">Failed to load album: {error}</div>;
-  }
-
   useEffect(() => {
     const checkFavorite = async () => {
       if (!session?.user?.id || !albumId) return;
@@ -112,6 +108,10 @@ export default function AlbumDetails({ params }: { params: Promise<{ albumId: st
     setLoadingFavorite(false);
   };    
 
+  if (error) {
+    return <div className="p-4 text-red-500">Failed to load album: {error}</div>;
+  }
+  
   return (
     <div className="p-4">
       {album && (

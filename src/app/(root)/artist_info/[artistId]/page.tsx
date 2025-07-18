@@ -74,10 +74,6 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
     fetchArtistAndSongs();
   }, [artistId]);
 
-  if (error) {
-    return <div className="p-4 text-red-500">Failed to load artist: {error}</div>;
-  }
-
   useEffect(() => {
     const checkFollowing = async () => {
       if (!session?.user?.id || !artistId) return;
@@ -101,6 +97,10 @@ export default function ArtistInfo({ params }: { params: Promise<{ artistId: str
     if (!error) setIsFollowing(true);
     setLoadingFollow(false);
   };  
+
+  if (error) {
+    return <div className="p-4 text-red-500">Failed to load artist: {error}</div>;
+  }
 
   return (
     <div className="p-4">
