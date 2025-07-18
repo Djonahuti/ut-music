@@ -35,6 +35,12 @@ interface Following {
   image_url: string}
 }
 
+interface FollowingRaw {
+  id: string;
+  artist_id: string;
+  artists: { name: string; image_url: string } | { name: string; image_url: string }[];
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth()
@@ -67,7 +73,7 @@ export default function ProfilePage() {
       setProfile(userData)
       setPlaylists(playlistData || [])
       setFollowing(
-        (followingData || []).map((item: any) => ({
+        (followingData || []).map((item: FollowingRaw) => ({
           ...item,
           artists: Array.isArray(item.artists) ? item.artists[0] : item.artists,
         }))
