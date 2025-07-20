@@ -47,7 +47,7 @@ export const TrackInfo = () => {
         </DialogContent>
       </Dialog>
      ):(
-      <Image src="/globe.svg" alt="default cover" width={40} height={40} className="rounded-sm" />
+      <Image src="/utmusic.png" alt="default cover" width={40} height={40} className="rounded-sm" />
      )}
       <Button
        variant="ghost" size="icon"

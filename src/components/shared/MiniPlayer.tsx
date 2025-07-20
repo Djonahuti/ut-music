@@ -39,7 +39,7 @@ export default function MiniPlayer() {
            {currentTrack.image ? (
             <Image src={currentTrack.image} alt="cover" width={288} height={288} className="rounded-xl w-full h-auto object-cover" />
            ):(
-            <Image src="/globe.svg" alt="default cover" width={288} height={288} className="rounded-xl w-full h-auto object-cover" />
+            <Image src="/utmusic.png" alt="default cover" width={288} height={288} className="rounded-xl w-full h-auto object-cover" />
            )}           
           <h3 className="mt-2 text-center font-bold text-lg text-black">{currentTrack.title}</h3>
           <p className="text-center text-sm text-gray-600">{currentTrack.artist}</p>

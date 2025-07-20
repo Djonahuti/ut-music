@@ -17,7 +17,7 @@ export const MiniInfo = () => {
      {currentTrack.image ? (
       <Image src={currentTrack.image} alt="cover" width={40} height={40} className="rounded-sm" />
      ):(
-      <Image src="/globe.svg" alt="default cover" width={40} height={40} className="rounded-sm" />
+      <Image src="/utmusic.png" alt="default cover" width={40} height={40} className="rounded-sm" />
      )}   
       <div className="flex flex-col text-center flex-grow">
         <div className="text-sm font-semibold leading-none truncate">

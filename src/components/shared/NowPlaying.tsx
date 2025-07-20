@@ -56,7 +56,7 @@ const NowPlaying: React.FC = () => {
        {currentTrack.image ? (
         <Image src={currentTrack.image} alt="cover" width={288} height={288} className="object-cover" />
        ):(
-        <Image src="/globe.svg" alt="default cover" width={288} height={288} className="object-cover" />
+        <Image src="/utmusic.png" alt="default cover" width={288} height={288} className="object-cover" />
        )}  
       </div>
 

@@ -200,7 +200,7 @@ export default function AlbumDetails({ params }: { params: Promise<{ albumId: st
                       <div className="flex items-center gap-4">
                         <span className="text-gray-400">{song.track_no}</span>
                         <Image
-                          src={song.cover_url || "/globe.svg"}
+                          src={song.cover_url || "/utmusic.png"}
                           alt={song.title}
                           width={40}
                           height={40}
