@@ -39,6 +39,8 @@ import {
 import { supabase } from "@/lib/supabase"
 import { User } from "@/types"
 import { SearchForm } from "@/components/SearchForm"
+import Logo from "../../../public/Logo"
+import { Separator } from "@/components/ui/separator"
 
 const data = {
   navMain: [
@@ -88,7 +90,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        Admin
+       <Link href="/" className="flex items-center space-x-2 p-2"> 
+        <Logo />
+       </Link> 
         <SearchForm />
       </SidebarHeader>
       <SidebarContent className="gap-0">
@@ -120,6 +124,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       </SidebarMenuItem>
                     ))}
                   </SidebarMenu>
+                  <Separator className="my-2" />
                   <SidebarMenu>
                     {user && user.id ? (
                       <DropdownMenu>
