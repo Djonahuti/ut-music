@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎵 UT Music
 
-## Getting Started
+**UT Music** is a modern full-stack music streaming platform inspired by **iTunes** and **Spotify**. Built with **Next.js**, **TypeScript**, **Tailwind CSS**, **ShadCN UI**, and **Supabase PostgreSQL**, it delivers a seamless, visually appealing, and responsive music experience for both users and administrators.
 
-First, run the development server:
+---
 
+## 🚀 Features
+
+### 👤 Authentication
+- User signup and login using **Supabase Auth**.
+- Supports **Google Authentication** for quick access.
+- Protected routes for authenticated users only.
+
+### 🎶 User Features
+- Stream and play music instantly.
+- Create, edit, and manage playlists.
+- Like and save favorite songs.
+- Follow artists and view their profiles.
+- Responsive and smooth UI with **dark mode support**.
+
+### 🧑‍💼 Admin Features
+- Full admin dashboard for managing:
+  - Users
+  - Artists
+  - Albums
+  - Genres
+  - Songs (Upload, Edit, Delete)
+- Role-based access control (only admins can manage content).
+
+### 🌗 UI & UX
+- Built with **ShadCN UI** and **Tailwind CSS** for a clean, elegant design.
+- Fully **responsive** and **dark-mode** supported.
+- Smooth animations and transitions.
+
+---
+
+## 🧱 Tech Stack
+
+| Category | Technology |
+|-----------|-------------|
+| Frontend | Next.js (TypeScript) |
+| Styling | Tailwind CSS + ShadCN UI |
+| Database | Supabase (PostgreSQL) |
+| Authentication | Supabase Auth + Google Auth |
+| Hosting | Vercel (recommended) |
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/Djonahuti/ut-music.git
+cd ut-music
+```
+
+### 2️⃣ Install Dependencies
+```bash
+npm install
+# or
+yarn install
+```
+
+### 3️⃣ Create an Environment File
+Create a `.env.local` file in the project root and add your Supabase credentials:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### 4️⃣ Run the Development Server
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧩 Folder Structure
+```
+ut-music/
+├── components/       # UI Components (Buttons, Cards, etc.)
+├── pages/            # Next.js pages and routes
+├── lib/              # Supabase client, helpers
+├── styles/           # Tailwind global styles
+├── public/           # Static files and assets
+├── prisma/           # Database schema (if used)
+└── README.md
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🧠 Future Improvements
+- AI-powered music recommendation system.
+- Real-time lyrics integration.
+- Collaborative playlists.
+- Artist analytics dashboard.
+- Mobile PWA support.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 👨‍💻 Creator
+**Developed by [David Jonah](https://github.com/Djonahuti)**  
+Building clean, scalable, and high-performance full-stack apps.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🪪 License
+This project is licensed under the **MIT License**.  
+Feel free to use, modify, and distribute with proper credit.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+### 💫 “Music gives a soul to the universe, wings to the mind, flight to the imagination, and life to everything.” – Plato
